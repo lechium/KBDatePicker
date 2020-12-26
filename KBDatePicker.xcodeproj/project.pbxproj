@@ -12,6 +12,7 @@
 		325D7B2925979B7C00CC6B10 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 325D7B2825979B7C00CC6B10 /* Assets.xcassets */; };
 		325D7B2C25979B7C00CC6B10 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 325D7B2A25979B7C00CC6B10 /* LaunchScreen.storyboard */; };
 		325D7B2F25979B7C00CC6B10 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B2E25979B7C00CC6B10 /* main.m */; };
+		325D7B3B2597B97200CC6B10 /* KBDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,8 @@
 		325D7B2B25979B7C00CC6B10 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		325D7B2D25979B7C00CC6B10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		325D7B2E25979B7C00CC6B10 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		325D7B392597B97200CC6B10 /* KBDatePickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KBDatePickerView.h; sourceTree = "<group>"; };
+		325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBDatePickerView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +61,8 @@
 			children = (
 				325D7B1F25979B7B00CC6B10 /* AppDelegate.h */,
 				325D7B2025979B7B00CC6B10 /* AppDelegate.m */,
+				325D7B392597B97200CC6B10 /* KBDatePickerView.h */,
+				325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */,
 				325D7B2225979B7B00CC6B10 /* KBDatePickerViewController.h */,
 				325D7B2325979B7B00CC6B10 /* KBDatePickerViewController.m */,
 				325D7B2825979B7C00CC6B10 /* Assets.xcassets */,
@@ -138,6 +143,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				325D7B2425979B7B00CC6B10 /* KBDatePickerViewController.m in Sources */,
+				325D7B3B2597B97200CC6B10 /* KBDatePickerView.m in Sources */,
 				325D7B2F25979B7C00CC6B10 /* main.m in Sources */,
 				325D7B2125979B7B00CC6B10 /* AppDelegate.m in Sources */,
 			);
