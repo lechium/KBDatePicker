@@ -27,6 +27,7 @@
 		325D7B2E25979B7C00CC6B10 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		325D7B392597B97200CC6B10 /* KBDatePickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KBDatePickerView.h; sourceTree = "<group>"; };
 		325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBDatePickerView.m; sourceTree = "<group>"; };
+		325D7B412597F35000CC6B10 /* postscript.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = postscript.sh; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +70,7 @@
 				325D7B2A25979B7C00CC6B10 /* LaunchScreen.storyboard */,
 				325D7B2D25979B7C00CC6B10 /* Info.plist */,
 				325D7B2E25979B7C00CC6B10 /* main.m */,
+				325D7B412597F35000CC6B10 /* postscript.sh */,
 			);
 			path = KBDatePicker;
 			sourceTree = "<group>";
@@ -83,6 +85,7 @@
 				325D7B1825979B7B00CC6B10 /* Sources */,
 				325D7B1925979B7B00CC6B10 /* Frameworks */,
 				325D7B1A25979B7B00CC6B10 /* Resources */,
+				325D7B402597F31000CC6B10 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -136,6 +139,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		325D7B402597F31000CC6B10 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\npushd \"$SRCROOT\"\n/bin/bash postscript.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		325D7B1825979B7B00CC6B10 /* Sources */ = {

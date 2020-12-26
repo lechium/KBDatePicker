@@ -1,5 +1,7 @@
 #import "KBDatePickerView.h"
 
+#define STACK_VIEW_HEIGHT 128
+
 @interface KBDatePickerView () {
     NSDate *_currentDate;
 }
@@ -12,14 +14,13 @@
 @property UILabel *dayLabel;
 @property UILabel *yearLabel;
 
-@property UILabel *dateLabel;
 @end
 
 @implementation KBDatePickerView
 
-- (NSDate *)currentDate {
+- (NSDate *)date {
     if (!_currentDate){
-        [self setCurrentDate:[NSDate date]];
+        [self setDate:[NSDate date]];
     }
     return _currentDate;
 }
@@ -28,24 +29,24 @@
     return [NSCalendar currentCalendar];
 }
 
-- (void)setCurrentDate:(NSDate *)date {
+- (void)setDate:(NSDate *)date {
     _currentDate = date;
-    _dateLabel.text = date.description;
+    //_dateLabel.text = date.description;
     [self scrollToCurrentDateAnimated:true];
 }
 
 
 - (id)init {
     self = [super init];
-    if (![self currentDate]){
-        [self setCurrentDate:[NSDate date]];
+    if (![self date]){
+        [self setDate:[NSDate date]];
     }
     [self layoutViews];
     return self;
 }
 
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
-    NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.currentDate];
+    NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
     [_monthTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.month-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
     [_dayTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.day-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
     [_yearTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
@@ -55,11 +56,23 @@
     if (tableView == _monthTable){
         return [self calendar].monthSymbols.count;
     } else if (tableView == _dayTable){
-        NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.currentDate];
+        NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
         return days.length;
     } else {
         return 3;
     }
+}
+
+- (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
+    [coordinator addCoordinatedAnimations:^{
+         
+        NSIndexPath *ip = context.nextFocusedIndexPath;
+        NSLog(@"[KBDatePicker] next ip: %@", ip);
+        [tableView selectRowAtIndexPath:ip animated:false scrollPosition:UITableViewScrollPositionTop];
+          
+      } completion:^{
+          
+      }];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -84,7 +97,7 @@
         if (!cell){
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"year"];
         }
-        NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.currentDate];
+        NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
         cell.textLabel.text = [NSString stringWithFormat:@"%lu", year - 1 + indexPath.row];
         cell.textLabel.textAlignment = NSTextAlignmentCenter;
     }
@@ -93,7 +106,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.currentDate];
+    NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
     if (tableView == _monthTable){
         NSInteger month = indexPath.row + 1;
         components.month = month;
@@ -102,32 +115,37 @@
             newDate = [[self calendar] dateFromComponents:components];
             components.day -= 1;
         } while (newDate == nil || ([[self calendar] component:NSCalendarUnitMonth fromDate:newDate] != month));
-        [self setCurrentDate:newDate];
+        [self setDate:newDate];
         [[self dayTable] reloadData];
         [[self yearTable] reloadData];
     } else if (tableView == _dayTable){
         components.day = indexPath.row + 1;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
         if (newDate){
-            [self setCurrentDate:newDate];
+            [self setDate:newDate];
             [[self monthTable] reloadData];
             [[self yearTable] reloadData];
         }
     } else {
-        NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.currentDate];
+        NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
         components.year = year - 1 + indexPath.row;
         NSDate *newDate = nil;
         do {
             newDate = [[self calendar] dateFromComponents:components];
             components.day -= 1;
         } while (newDate == nil || ([[self calendar] component:NSCalendarUnitMonth fromDate:newDate] != components.month));
-        [self setCurrentDate:newDate];
+        [self setDate:newDate];
         [[self monthTable] reloadData];
         [[self yearTable] reloadData];
     }
     if (self.itemSelectedBlock){
-        self.itemSelectedBlock(self.currentDate);
+        self.itemSelectedBlock(self.date);
     }
+}
+
+- (CGSize)sizeThatFits:(CGSize)size {
+    CGSize sup = [super sizeThatFits:size];
+    return CGSizeMake(720, STACK_VIEW_HEIGHT+81+60+40);
 }
 
 - (void)layoutViews {
@@ -141,11 +159,7 @@
     self.dayLabel = [[UILabel alloc] init];
     self.dayLabel.translatesAutoresizingMaskIntoConstraints = false;
     self.dayLabel.text = @"Day";
-    
-    self.dateLabel = [[UILabel alloc] init];
-    self.dateLabel.translatesAutoresizingMaskIntoConstraints = false;
-    
-    
+
     self.monthTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.yearTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.dayTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
@@ -163,26 +177,22 @@
     self.datePickerStackView.alignment = UIStackViewAlignmentFill;
     self.datePickerStackView.distribution = UIStackViewDistributionFillEqually;
     [self.datePickerStackView.widthAnchor constraintEqualToConstant:720].active = true;
-    [self.datePickerStackView.heightAnchor constraintEqualToConstant:128].active = true;
+    [self.datePickerStackView.heightAnchor constraintEqualToConstant:STACK_VIEW_HEIGHT].active = true;
     
     [self addSubview:self.datePickerStackView];
     [self addSubview:self.monthLabel];
     [self addSubview:self.yearLabel];
     [self addSubview:self.dayLabel];
-    [self addSubview:self.dateLabel];
-    
-    [self.datePickerStackView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
+
     [self.datePickerStackView.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
-    
-    [self.monthLabel.bottomAnchor constraintEqualToAnchor:self.datePickerStackView.topAnchor constant:-60].active = true;
-    [self.dayLabel.bottomAnchor constraintEqualToAnchor:self.datePickerStackView.topAnchor constant:-60].active = true;
-    [self.dateLabel.bottomAnchor constraintEqualToAnchor:self.dayLabel.topAnchor constant:-81].active = true;
-    [self.dateLabel.centerXAnchor constraintEqualToAnchor:self.dayLabel.centerXAnchor].active = true;
+    [self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
+    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    [self.dayLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
     [self.dayLabel.centerXAnchor constraintEqualToAnchor:self.dayTable.centerXAnchor].active = true;
     [self.monthLabel.centerXAnchor constraintEqualToAnchor:self.monthTable.centerXAnchor].active = true;
     [self.yearLabel.centerXAnchor constraintEqualToAnchor:self.yearTable.centerXAnchor].active = true;
-    [self.yearLabel.bottomAnchor constraintEqualToAnchor:self.datePickerStackView.topAnchor constant:-60].active = true;
-    [self.monthLabel.bottomAnchor constraintEqualToAnchor:self.datePickerStackView.topAnchor constant:-60].active = true;
+    [self.yearLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
 }
 
 @end
