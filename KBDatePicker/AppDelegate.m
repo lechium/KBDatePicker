@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-
+#import "KBDatePickerViewController.h"
 @interface AppDelegate ()
 
 @end
@@ -17,6 +17,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+     _window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    KBDatePickerViewController *datePicker = [KBDatePickerViewController new];
+    _window.rootViewController = datePicker;
+    [_window makeKeyAndVisible];
     return YES;
 }
 

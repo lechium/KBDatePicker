@@ -8,8 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		325D7B2125979B7B00CC6B10 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B2025979B7B00CC6B10 /* AppDelegate.m */; };
-		325D7B2425979B7B00CC6B10 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B2325979B7B00CC6B10 /* ViewController.m */; };
-		325D7B2725979B7B00CC6B10 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 325D7B2525979B7B00CC6B10 /* Main.storyboard */; };
+		325D7B2425979B7B00CC6B10 /* KBDatePickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B2325979B7B00CC6B10 /* KBDatePickerViewController.m */; };
 		325D7B2925979B7C00CC6B10 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 325D7B2825979B7C00CC6B10 /* Assets.xcassets */; };
 		325D7B2C25979B7C00CC6B10 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 325D7B2A25979B7C00CC6B10 /* LaunchScreen.storyboard */; };
 		325D7B2F25979B7C00CC6B10 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B2E25979B7C00CC6B10 /* main.m */; };
@@ -19,9 +18,8 @@
 		325D7B1C25979B7B00CC6B10 /* KBDatePicker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KBDatePicker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		325D7B1F25979B7B00CC6B10 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		325D7B2025979B7B00CC6B10 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		325D7B2225979B7B00CC6B10 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		325D7B2325979B7B00CC6B10 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		325D7B2625979B7B00CC6B10 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		325D7B2225979B7B00CC6B10 /* KBDatePickerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KBDatePickerViewController.h; sourceTree = "<group>"; };
+		325D7B2325979B7B00CC6B10 /* KBDatePickerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KBDatePickerViewController.m; sourceTree = "<group>"; };
 		325D7B2825979B7C00CC6B10 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		325D7B2B25979B7C00CC6B10 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		325D7B2D25979B7C00CC6B10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -60,9 +58,8 @@
 			children = (
 				325D7B1F25979B7B00CC6B10 /* AppDelegate.h */,
 				325D7B2025979B7B00CC6B10 /* AppDelegate.m */,
-				325D7B2225979B7B00CC6B10 /* ViewController.h */,
-				325D7B2325979B7B00CC6B10 /* ViewController.m */,
-				325D7B2525979B7B00CC6B10 /* Main.storyboard */,
+				325D7B2225979B7B00CC6B10 /* KBDatePickerViewController.h */,
+				325D7B2325979B7B00CC6B10 /* KBDatePickerViewController.m */,
 				325D7B2825979B7C00CC6B10 /* Assets.xcassets */,
 				325D7B2A25979B7C00CC6B10 /* LaunchScreen.storyboard */,
 				325D7B2D25979B7C00CC6B10 /* Info.plist */,
@@ -130,7 +127,6 @@
 			files = (
 				325D7B2C25979B7C00CC6B10 /* LaunchScreen.storyboard in Resources */,
 				325D7B2925979B7C00CC6B10 /* Assets.xcassets in Resources */,
-				325D7B2725979B7B00CC6B10 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,7 +137,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				325D7B2425979B7B00CC6B10 /* ViewController.m in Sources */,
+				325D7B2425979B7B00CC6B10 /* KBDatePickerViewController.m in Sources */,
 				325D7B2F25979B7C00CC6B10 /* main.m in Sources */,
 				325D7B2125979B7B00CC6B10 /* AppDelegate.m in Sources */,
 			);
@@ -150,14 +146,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		325D7B2525979B7B00CC6B10 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				325D7B2625979B7B00CC6B10 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		325D7B2A25979B7C00CC6B10 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
