@@ -8,7 +8,7 @@
 
 #import "KBDatePickerViewController.h"
 
-@interface KBDatePickerViewController () {
+@interface KBDatePickerView () {
     NSDate *_currentDate;
 }
 
@@ -26,11 +26,11 @@
 
 @end
 
-@implementation KBDatePickerViewController
+@implementation KBDatePickerView
 
 - (NSDate *)currentDate {
     if (!_currentDate){
-        _currentDate = [NSDate date];
+        [self setCurrentDate:[NSDate date]];
     }
     return _currentDate;
 }
@@ -45,12 +45,14 @@
     [self scrollToCurrentDateAnimated:true];
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+
+- (id)init {
+    self = [super init];
     if (![self currentDate]){
         [self setCurrentDate:[NSDate date]];
     }
     [self layoutViews];
+    return self;
 }
 
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
@@ -134,12 +136,12 @@
         [[self monthTable] reloadData];
         [[self yearTable] reloadData];
     }
+    if (self.itemSelectedBlock){
+        self.itemSelectedBlock(self.currentDate);
+    }
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    [self scrollToCurrentDateAnimated:true];
-}
+
 
 - (void)layoutViews {
     
@@ -176,14 +178,14 @@
     [self.datePickerStackView.widthAnchor constraintEqualToConstant:720].active = true;
     [self.datePickerStackView.heightAnchor constraintEqualToConstant:128].active = true;
     
-    [self.view addSubview:self.datePickerStackView];
-    [self.view addSubview:self.monthLabel];
-    [self.view addSubview:self.yearLabel];
-    [self.view addSubview:self.dayLabel];
-    [self.view addSubview:self.dateLabel];
+    [self addSubview:self.datePickerStackView];
+    [self addSubview:self.monthLabel];
+    [self addSubview:self.yearLabel];
+    [self addSubview:self.dayLabel];
+    [self addSubview:self.dateLabel];
     
-    [self.datePickerStackView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor].active = true;
-    [self.datePickerStackView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
+    [self.datePickerStackView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
+    [self.datePickerStackView.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
     
     [self.monthLabel.bottomAnchor constraintEqualToAnchor:self.datePickerStackView.topAnchor constant:-60].active = true;
     [self.dayLabel.bottomAnchor constraintEqualToAnchor:self.datePickerStackView.topAnchor constant:-60].active = true;
@@ -197,5 +199,36 @@
 }
 
 
+
+@end
+
+@interface KBDatePickerViewController() {
+    
+}
+@property KBDatePickerView *datePickerView;
+
+@end
+
+@implementation KBDatePickerViewController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    //[self scrollToCurrentDateAnimated:true];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.datePickerView = [KBDatePickerView new];
+    self.datePickerView.translatesAutoresizingMaskIntoConstraints = false;
+    [self.view addSubview:self.datePickerView];
+    [self.datePickerView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor].active = true;
+    [self.datePickerView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
+    [self.datePickerView.widthAnchor constraintEqualToConstant:720].active = true;
+    [self.datePickerView.heightAnchor constraintEqualToConstant:128+81+60+40].active = true;
+    self.datePickerView.itemSelectedBlock = ^(NSDate * _Nullable date) {
+      
+        NSLog(@"[KBDatePicker] date selected: %@", date);
+    };
+}
 
 @end

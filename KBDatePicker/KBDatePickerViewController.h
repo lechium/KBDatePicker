@@ -8,9 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface KBDatePickerViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
-
+@interface KBDatePickerView: UIView <UITableViewDelegate, UITableViewDataSource>
 @property NSDate *currentDate;
+@property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
+@end
 
+@interface KBDatePickerViewController : UIViewController
 @end
 
