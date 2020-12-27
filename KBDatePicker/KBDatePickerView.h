@@ -1,5 +1,7 @@
 #import <UIKit/UIKit.h>
 
+#define NUMBER_OF_CELLS 100000
+
 @interface UIStackView (Helper)
 - (void)removeAllArrangedSubviews;
 - (void)setArrangedViews:(NSArray *)views;

@@ -2,6 +2,10 @@
 
 #define STACK_VIEW_HEIGHT 128
 
+@interface UITableView (yep)
+- (NSIndexPath *)_focusedCellIndexPath;
+@end
+
 @implementation UIStackView (Helper)
 
 - (void)removeAllArrangedSubviews {
@@ -28,8 +32,11 @@
 @interface KBDatePickerView () {
     NSDate *_currentDate;
     NSArray *_tableViews;
+    BOOL _pmSelected;
 }
 
+@property (nonatomic, strong) NSArray *hourData;
+@property (nonatomic, strong) NSArray *minutesData;
 @property UIStackView *datePickerStackView;
 @property UITableView *monthTable;
 @property UITableView *dayTable;
@@ -72,16 +79,28 @@
 
 - (id)init {
     self = [super init];
+    _pmSelected = false;
     if (![self date]){
         [self setDate:[NSDate date]];
     }
-    _datePickerMode = KBDatePickerModeDate;
+    _datePickerMode = KBDatePickerModeTime;
     [self layoutViews];
     return self;
 }
 
 - (void)layoutForTime {
     
+    [self setupTimeData];
+    self.hourTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.minuteTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.amPMTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.hourTable.delegate = self;
+    self.hourTable.dataSource = self;
+    self.minuteTable.delegate = self;
+    self.minuteTable.dataSource = self;
+    self.amPMTable.delegate = self;
+    self.amPMTable.dataSource = self;
+    _tableViews = @[_hourTable, _minuteTable, _amPMTable];
 }
 
 - (void)layoutForDate {
@@ -194,6 +213,26 @@
     }
 }
 
+- (NSArray *)createNumberArray:(NSInteger)count zeroIndex:(BOOL)zeroIndex leadingZero:(BOOL)leadingZero {
+    __block NSMutableArray *_newArray = [NSMutableArray new];
+    int startIndex = 1;
+    if (zeroIndex){
+        startIndex = 0;
+    }
+    for (int i = startIndex; i < count+startIndex; i++){
+        if (leadingZero){
+            [_newArray addObject:[NSString stringWithFormat:@"%02i", i]];
+        } else {
+            [_newArray addObject:[NSString stringWithFormat:@"%i", i]];
+        }
+    }
+    return _newArray;
+}
+
+- (NSArray *)monthData {
+    return @[@"January", @"Februrary", @"March", @"April", @"May", @"June", @"July", @"August", @"September", @"October", @"November", @"December"];
+}
+
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
     NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
     [_monthTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.month-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
@@ -207,6 +246,12 @@
     } else if (tableView == _dayTable){
         NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
         return days.length;
+    } else if (tableView == _hourTable){
+        return [self hourNumberOfRowsInSection:section];
+    } else if (tableView == _minuteTable){
+        return [self hourNumberOfRowsInSection:section];
+    } else if (tableView == _amPMTable){
+        return 2;
     } else {
         return 7;
     }
@@ -224,10 +269,78 @@
     }];
 }
 
+- (NSInteger)hourNumberOfRowsInSection:(NSInteger)section
+{
+    // Return the number of rows in the section.
+    return NUMBER_OF_CELLS;
+}
+
+- (void)setupTimeData {
+    self.hourData = [self createNumberArray:12 zeroIndex:FALSE leadingZero:FALSE];
+    self.minutesData = [self createNumberArray:60 zeroIndex:TRUE leadingZero:TRUE];
+}
+
+- (NSInteger)largeNumberForHours {
+    return 24996;
+}
+
+- (NSInteger)largeNumberForMinutes {
+    return 24000;
+}
+
+- (UITableViewCell *)minutesCellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"minutesCell";
+    UITableViewCell *cell = [_minuteTable dequeueReusableCellWithIdentifier:CellIdentifier];
+    // Configure the cell...
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier];
+    }
+    NSString *s = [self.minutesData objectAtIndex: indexPath.row % self.minutesData.count];
+    [cell.textLabel setText: s];
+    
+    return cell;
+}
+
+- (UITableViewCell *)hourCellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"hoursCell";
+    UITableViewCell *cell = [_hourTable dequeueReusableCellWithIdentifier:CellIdentifier];
+    // Configure the cell...
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier];
+    }
+    NSString *s = [self.hourData objectAtIndex: indexPath.row % self.hourData.count];
+    [cell.textLabel setText: s];
+    
+    return cell;
+}
+
+- (UITableViewCell *)amPMCellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"amPMCell";
+    UITableViewCell *cell = [_amPMTable dequeueReusableCellWithIdentifier:CellIdentifier];
+    // Configure the cell...
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier];
+    }
+    if (indexPath.row == 0){
+        cell.textLabel.text = @"AM";
+    } else {
+        cell.textLabel.text = @"PM";
+    }
+    
+    return cell;
+}
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     UITableViewCell *cell = nil;
-    if (tableView == _monthTable){
+    if (tableView == _hourTable){
+        return [self hourCellForRowAtIndexPath:indexPath];
+    } else if (tableView == _minuteTable) {
+        return [self minutesCellForRowAtIndexPath:indexPath];
+    } else if (tableView == _amPMTable) {
+        return [self amPMCellForRowAtIndexPath:indexPath];
+    } else if (tableView == _monthTable) {
         cell = [tableView dequeueReusableCellWithIdentifier:@"month"];
         if (!cell){
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"month"];
@@ -253,6 +366,24 @@
     return cell;
 }
 
+- (NSInteger)currentHoursIfApplicable {
+    if (self.datePickerMode == KBDatePickerModeTime){
+        NSIndexPath *indexPath = [_hourTable _focusedCellIndexPath];
+        NSString *s = [self.hourData objectAtIndex: indexPath.row % self.hourData.count];
+        return s.integerValue;
+    }
+    return 0;
+}
+
+- (NSInteger)currentMinutesIfApplicable {
+    if (self.datePickerMode == KBDatePickerModeTime){
+        NSIndexPath *indexPath = [_minuteTable _focusedCellIndexPath];
+        NSString *s = [self.minutesData objectAtIndex: indexPath.row % self.minutesData.count];
+        return s.integerValue;
+    }
+    return 0;
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
@@ -275,7 +406,7 @@
             [[self monthTable] reloadData];
             [[self yearTable] reloadData];
         }
-    } else {
+    } else if (tableView == _yearTable){
         NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
         components.year = year - 1 + indexPath.row;
         NSDate *newDate = nil;
@@ -286,7 +417,36 @@
         [self setDate:newDate];
         [[self monthTable] reloadData];
         [[self yearTable] reloadData];
+    } else if (tableView == _hourTable){
+        
+        NSInteger minutes = [[self calendar] component:NSCalendarUnitMinute fromDate:self.date];
+        NSInteger hourSelected = [[self.hourData objectAtIndex: indexPath.row % self.hourData.count] integerValue];
+        if (_pmSelected){
+            hourSelected += 12;
+        }
+        components.hour = hourSelected;
+        components.minute = minutes;
+        NSDate *newDate = [[self calendar] dateFromComponents:components];
+        [self setDate:newDate];
+        NSLog(@"[KBDatePicker] hourSelected: %lu", hourSelected);
+    } else if (tableView == _minuteTable){
+        NSInteger hours = [[self calendar] component:NSCalendarUnitHour fromDate:self.date];
+        NSString *minuteSelected = [self.minutesData objectAtIndex: indexPath.row % self.minutesData.count];
+        components.minute = minuteSelected.integerValue;
+        components.hour = hours;
+        NSDate *newDate = [[self calendar] dateFromComponents:components];
+        [self setDate:newDate];
+        NSLog(@"[KBDatePicker] minuteSelected: %@", minuteSelected);
+    } else if (tableView == _amPMTable){
+        if (indexPath.row == 0){
+            NSLog(@"[KBDatePicker] AM SELECTED");
+            _pmSelected = false;
+        } else {
+            NSLog(@"[KBDatePicker] PM SELECTED");
+            _pmSelected = true;
+        }
     }
+    
     if (self.itemSelectedBlock){
         self.itemSelectedBlock(self.date);
     }
@@ -325,10 +485,30 @@
     [self addSubview:self.datePickerStackView];
     
     [self.datePickerStackView.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
-    [self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
+    [self.datePickerStackView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
+    //[self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
     
     [self setupLabelsForMode];
     
+    if (self.datePickerMode == KBDatePickerModeTime){
+        __block NSInteger randomIndex = (NUMBER_OF_CELLS / 2);
+        //randomIndex = 120;
+        [_tableViews enumerateObjectsUsingBlock:^(UITableView  *_Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (obj != _amPMTable){
+                
+                if (obj == _minuteTable){
+                    randomIndex = [self largeNumberForMinutes];
+                } else if (obj == _hourTable){
+                    randomIndex = [self largeNumberForHours];
+                }
+                [obj scrollToRowAtIndexPath: [NSIndexPath indexPathForRow:randomIndex
+                                                                inSection: 0]
+                           atScrollPosition: UITableViewScrollPositionTop
+                                   animated: NO];
+            }
+        }];
+        
+    }
     
 }
 
