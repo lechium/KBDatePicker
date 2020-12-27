@@ -19,6 +19,7 @@
 @interface KBTableView: UITableView
 @property NSIndexPath * _Nullable selectedIndexPath;
 @property id _Nullable selectedValue;
+- (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
 @end
 
 typedef NS_ENUM(NSInteger, KBTableViewTag) {
@@ -43,5 +44,4 @@ typedef NS_ENUM(NSInteger, KBDatePickerMode) {
 @property NSDate * _Nonnull date;
 @property KBDatePickerMode datePickerMode;
 @property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
-
 @end

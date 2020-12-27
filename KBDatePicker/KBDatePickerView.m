@@ -49,12 +49,16 @@
     return _selectedIndexPath;
 }
 
+- (id)valueForIndexPath:(NSIndexPath *)indexPath {
+    return [self cellForRowAtIndexPath:indexPath].textLabel.text;
+}
+
 - (void)setSelectedIndexPath:(NSIndexPath *)selectedIndexPath {
     _selectedIndexPath = selectedIndexPath;
-    UITableViewCell *cell = [self cellForRowAtIndexPath:selectedIndexPath];
-    if (cell){
+    id value = [self valueForIndexPath:selectedIndexPath];
+    if (value){
         DPLog(@"found cell in %lu", self.tag);
-        _selectedValue = cell.textLabel.text;
+        _selectedValue = value;
         DPLog(@"selected value set: %@ for index; %lu", _selectedValue, selectedIndexPath.row);
     }
 }
@@ -286,10 +290,15 @@
 }
 
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
-    NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
-    [_monthTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.month-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
-    [_dayTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.day-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
-    [_yearTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
+    
+    if (self.datePickerMode == KBDatePickerModeTime){
+        [self loadTimeFromDateAnimated:animated];
+    } else {
+        NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
+        [_monthTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.month-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
+        [_dayTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.day-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
+        [_yearTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -338,12 +347,69 @@
     self.minutesData = [self createNumberArray:60 zeroIndex:TRUE leadingZero:TRUE];
 }
 
-- (NSInteger)largeNumberForHours {
+- (NSInteger)startIndexForHours {
     return 24996;
 }
 
-- (NSInteger)largeNumberForMinutes {
+- (NSInteger)startIndexForMinutes {
     return 24000;
+}
+
+- (id)kb_stringWithFormat:(const char*) fmt,... {
+    va_list args;
+    char temp[2048];
+    va_start(args, fmt);
+    vsprintf(temp, fmt, args);
+    va_end(args);
+    return [[NSString alloc] initWithUTF8String:temp];
+}
+
+- (void)loadTimeFromDateAnimated:(BOOL)animated {
+    
+    LOG_SELF;
+    NSDateComponents *components = [[self calendar] components:NSCalendarUnitHour | NSCalendarUnitMinute fromDate:self.date];
+    NSInteger hour = components.hour;
+    NSInteger minutes = components.minute;
+    BOOL isPM = (hour >= 12);
+    if (isPM){
+        hour = hour-12;
+        NSIndexPath *amPMIndex = [NSIndexPath indexPathForRow:1 inSection:0];
+        [self.amPMTable scrollToRowAtIndexPath:amPMIndex atScrollPosition:UITableViewScrollPositionTop animated:false];
+    }
+    NSString *hourValue = [self kb_stringWithFormat:"%lu", hour];
+    NSString *minuteValue = [self kb_stringWithFormat:"%lu", minutes];
+    DPLog(@"hours %@ minutes %@", hourValue, minuteValue);
+    [self scrollToValue:hourValue inTableViewType:KBTableViewTagHours animated:animated];
+    [self scrollToValue:minuteValue inTableViewType:KBTableViewTagMinutes animated:animated];
+    
+    
+}
+
+- (void)scrollToValue:(id)value inTableViewType:(KBTableViewTag)type animated:(BOOL)animated {
+    NSInteger foundIndex = NSNotFound;
+    NSIndexPath *ip = nil;
+    switch (type) {
+        case KBTableViewTagHours:
+            foundIndex = [self.hourData indexOfObject:value];
+            if (foundIndex != NSNotFound){
+                ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
+                DPLog(@"found index: %@", ip);
+                [self.hourTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+            }
+            break;
+            
+        case KBTableViewTagMinutes:
+            foundIndex = [self.minutesData indexOfObject:value];
+            if (foundIndex != NSNotFound){
+                ip = [NSIndexPath indexPathForRow:[self startIndexForMinutes]+foundIndex inSection:0];
+                DPLog(@"found index: %@", ip);
+                [self.minuteTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+            }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (UITableViewCell *)minutesCellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -594,30 +660,10 @@
     
     [self setupLabelsForMode];
     
-    if (self.datePickerMode == KBDatePickerModeTime){
-        __block NSInteger randomIndex = (NUMBER_OF_CELLS / 2);
-        //randomIndex = 120;
-        [_tableViews enumerateObjectsUsingBlock:^(KBTableView  *_Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if (obj != _amPMTable){
-                
-                if (obj == _minuteTable){
-                    randomIndex = [self largeNumberForMinutes];
-                } else if (obj == _hourTable){
-                    randomIndex = [self largeNumberForHours];
-                }
-                DPLog(@"scrolling to index %lu in %lu", randomIndex, obj.tag);
-                NSIndexPath *ip = [NSIndexPath indexPathForRow:randomIndex
-                                                     inSection: 0];
-                
-                [obj scrollToRowAtIndexPath: ip
-                           atScrollPosition: UITableViewScrollPositionTop
-                                   animated: NO];
-                [obj setSelectedIndexPath:ip];
-            }
-        }];
-        
-    }
-    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+         [self scrollToCurrentDateAnimated:true];
+    });
+
 }
 
 @end
