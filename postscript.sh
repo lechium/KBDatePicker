@@ -51,7 +51,7 @@ rm $FINAL_APP_PATH/embedded.mobileprovision
 rm -rf $FINAL_APP_PATH/_CodeSignature
 /usr/local/bin/fakeroot dpkg-deb -b layout
 scp layout.deb root@$ATV_DEVICE_IP:~
-ssh root@$ATV_DEVICE_IP "killall -9 KBDatePicker ; dpkg -i layout.deb ;  uicache; lsdtrip launch com.nito.KBDatePicker"
+ssh root@$ATV_DEVICE_IP "killall -9 KBDatePicker ; dpkg -i layout.deb ; lsdtrip launch com.nito.KBDatePicker"
 
 exit 0
 
