@@ -2,14 +2,41 @@
 
 #define STACK_VIEW_HEIGHT 128
 
+@implementation UIStackView (Helper)
+
+- (void)removeAllArrangedSubviews {
+    [[self arrangedSubviews] enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        
+        if ([obj respondsToSelector:@selector(removeAllArrangedSubviews)]){
+            [obj removeAllArrangedSubviews];
+        }
+        [self removeArrangedSubview:obj];
+    }];
+}
+
+- (void)setArrangedViews:(NSArray *)views {
+    if ([self arrangedSubviews].count > 0){
+        [self removeAllArrangedSubviews];
+    }
+    [views enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [self addArrangedSubview:obj];
+    }];
+}
+
+@end
+
 @interface KBDatePickerView () {
     NSDate *_currentDate;
+    NSArray *_tableViews;
 }
 
 @property UIStackView *datePickerStackView;
 @property UITableView *monthTable;
 @property UITableView *dayTable;
 @property UITableView *yearTable;
+@property UITableView *hourTable;
+@property UITableView *minuteTable;
+@property UITableView *amPMTable;
 @property UILabel *monthLabel;
 @property UILabel *dayLabel;
 @property UILabel *yearLabel;
@@ -29,20 +56,142 @@
     return [NSCalendar currentCalendar];
 }
 
-- (void)setDate:(NSDate *)date {
+- (void)setDate:(NSDate *)date animated:(BOOL)animated {
     _currentDate = date;
-    //_dateLabel.text = date.description;
-    [self scrollToCurrentDateAnimated:true];
+    [self scrollToCurrentDateAnimated:animated];
 }
 
+- (void)setDate:(NSDate *)date {
+    _currentDate = date;
+    [self setDate:date animated:true];
+}
+
+- (BOOL)isEnabled {
+    return FALSE;
+}
 
 - (id)init {
     self = [super init];
     if (![self date]){
         [self setDate:[NSDate date]];
     }
+    _datePickerMode = KBDatePickerModeDate;
     [self layoutViews];
     return self;
+}
+
+- (void)layoutForTime {
+    
+}
+
+- (void)layoutForDate {
+    
+    if (self.monthLabel){
+        [self.monthLabel removeFromSuperview];
+        self.monthLabel = nil;
+        [self.yearLabel removeFromSuperview];
+        self.yearLabel = nil;
+        [self.dayLabel removeFromSuperview];
+        self.dayLabel = nil;
+        self.monthTable = nil;
+        self.yearTable = nil;
+        self.dayTable = nil;
+        _tableViews = nil;
+    }
+    
+    self.monthLabel = [[UILabel alloc] init];
+    self.monthLabel.translatesAutoresizingMaskIntoConstraints = false;
+    self.monthLabel.text = @"Month";
+    self.yearLabel = [[UILabel alloc] init];
+    self.yearLabel.translatesAutoresizingMaskIntoConstraints = false;
+    self.yearLabel.text = @"Year";
+    self.dayLabel = [[UILabel alloc] init];
+    self.dayLabel.translatesAutoresizingMaskIntoConstraints = false;
+    self.dayLabel.text = @"Day";
+    
+    self.monthTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.yearTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.dayTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.monthTable.delegate = self;
+    self.monthTable.dataSource = self;
+    self.yearTable.delegate = self;
+    self.yearTable.dataSource = self;
+    self.dayTable.delegate = self;
+    self.dayTable.dataSource = self;
+    _tableViews = @[_monthTable, _dayTable, _yearTable];
+    [self addSubview:self.monthLabel];
+    [self addSubview:self.yearLabel];
+    [self addSubview:self.dayLabel];
+}
+
+- (void)layoutLabelsForDate {
+    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    [self.dayLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    [self.dayLabel.centerXAnchor constraintEqualToAnchor:self.dayTable.centerXAnchor].active = true;
+    [self.monthLabel.centerXAnchor constraintEqualToAnchor:self.monthTable.centerXAnchor].active = true;
+    [self.yearLabel.centerXAnchor constraintEqualToAnchor:self.yearTable.centerXAnchor].active = true;
+    [self.yearLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+}
+
+
+- (void)layoutForDateAndTime {
+    
+}
+
+- (void)layoutForCountdownTimer {
+    
+}
+
+- (void)layoutLabelsForTime {
+    
+}
+
+- (void)setupLabelsForMode {
+    switch (self.datePickerMode) {
+        case KBDatePickerModeTime:
+            [self layoutLabelsForTime];
+            break;
+            
+        case KBDatePickerModeDate:
+            [self layoutLabelsForDate];
+            break;
+            
+        case KBDatePickerModeDateAndTime:
+            [self layoutForDateAndTime];
+            break;
+            
+        case KBDatePickerModeCountDownTimer:
+            [self layoutForCountdownTimer];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+
+- (void)viewSetupForMode {
+    switch (self.datePickerMode) {
+        case KBDatePickerModeTime:
+            [self layoutForTime];
+            break;
+            
+        case KBDatePickerModeDate:
+            [self layoutForDate];
+            break;
+            
+        case KBDatePickerModeDateAndTime:
+            [self layoutForDateAndTime];
+            break;
+            
+        case KBDatePickerModeCountDownTimer:
+            [self layoutForCountdownTimer];
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
@@ -59,20 +208,20 @@
         NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
         return days.length;
     } else {
-        return 3;
+        return 7;
     }
 }
 
 - (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
     [coordinator addCoordinatedAnimations:^{
-         
+        
         NSIndexPath *ip = context.nextFocusedIndexPath;
         NSLog(@"[KBDatePicker] next ip: %@", ip);
         [tableView selectRowAtIndexPath:ip animated:false scrollPosition:UITableViewScrollPositionTop];
-          
-      } completion:^{
-          
-      }];
+        
+    } completion:^{
+        
+    }];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -141,36 +290,30 @@
     if (self.itemSelectedBlock){
         self.itemSelectedBlock(self.date);
     }
+    [self sendActionsForControlEvents:UIControlEventValueChanged];
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-    CGSize sup = [super sizeThatFits:size];
+    //CGSize sup = [super sizeThatFits:size];
     return CGSizeMake(720, STACK_VIEW_HEIGHT+81+60+40);
 }
 
 - (void)layoutViews {
     
-    self.monthLabel = [[UILabel alloc] init];
-    self.monthLabel.translatesAutoresizingMaskIntoConstraints = false;
-    self.monthLabel.text = @"Month";
-    self.yearLabel = [[UILabel alloc] init];
-    self.yearLabel.translatesAutoresizingMaskIntoConstraints = false;
-    self.yearLabel.text = @"Year";
-    self.dayLabel = [[UILabel alloc] init];
-    self.dayLabel.translatesAutoresizingMaskIntoConstraints = false;
-    self.dayLabel.text = @"Day";
-
-    self.monthTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-    self.yearTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-    self.dayTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-    self.monthTable.delegate = self;
-    self.monthTable.dataSource = self;
-    self.yearTable.delegate = self;
-    self.yearTable.dataSource = self;
-    self.dayTable.delegate = self;
-    self.dayTable.dataSource = self;
+    [self viewSetupForMode];
     
-    self.datePickerStackView = [[UIStackView alloc] initWithArrangedSubviews:@[self.monthTable, self.dayTable, self.yearTable]];
+    if (!_tableViews){
+        NSLog(@"[KBDatePickerView] we aint got no table views, bail!!");
+        return;
+    }
+    
+    if (_datePickerStackView != nil){
+        [_datePickerStackView removeAllArrangedSubviews];
+        [_datePickerStackView removeFromSuperview];
+        _datePickerStackView = nil;
+    }
+    
+    self.datePickerStackView = [[UIStackView alloc] initWithArrangedSubviews:_tableViews];
     self.datePickerStackView.translatesAutoresizingMaskIntoConstraints = false;
     self.datePickerStackView.spacing = 10;
     self.datePickerStackView.axis = UILayoutConstraintAxisHorizontal;
@@ -180,19 +323,13 @@
     [self.datePickerStackView.heightAnchor constraintEqualToConstant:STACK_VIEW_HEIGHT].active = true;
     
     [self addSubview:self.datePickerStackView];
-    [self addSubview:self.monthLabel];
-    [self addSubview:self.yearLabel];
-    [self addSubview:self.dayLabel];
-
+    
     [self.datePickerStackView.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
     [self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
-    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
-    [self.dayLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
-    [self.dayLabel.centerXAnchor constraintEqualToAnchor:self.dayTable.centerXAnchor].active = true;
-    [self.monthLabel.centerXAnchor constraintEqualToAnchor:self.monthTable.centerXAnchor].active = true;
-    [self.yearLabel.centerXAnchor constraintEqualToAnchor:self.yearTable.centerXAnchor].active = true;
-    [self.yearLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
-    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    
+    [self setupLabelsForMode];
+    
+    
 }
 
 @end

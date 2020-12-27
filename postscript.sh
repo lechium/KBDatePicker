@@ -45,7 +45,7 @@ EXE_PATH=$FINAL_APP_PATH/$EXECUTABLE_NAME
 #EXE_PATH2=$EXE_PATH.2
 #./universalize tvos $EXE_PATH $EXE_PATH2
 #mv $EXE_PATH2 $EXE_PATH
-exit 0
+#exit 0
 ldid -Sent.plist $EXE_PATH
 rm $FINAL_APP_PATH/embedded.mobileprovision
 rm -rf $FINAL_APP_PATH/_CodeSignature

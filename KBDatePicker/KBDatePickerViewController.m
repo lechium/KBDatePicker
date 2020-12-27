@@ -38,14 +38,19 @@
     [self.datePickerView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
     [self.datePickerView.widthAnchor constraintEqualToConstant:720].active = true;
     [self.datePickerView.heightAnchor constraintEqualToConstant:128+81+60+40].active = true;
+    __weak typeof(self) weakSelf = self;
     self.datePickerView.itemSelectedBlock = ^(NSDate * _Nullable date) {
-      
         NSLog(@"[KBDatePicker] date selected: %@", date);
-        self.datePickerLabel.text = date.description;
+        weakSelf.datePickerLabel.text = date.description;
     };
     
-    
+    [self.datePickerView addTarget:self action:@selector(datePickerChanged:) forControlEvents:UIControlEventValueChanged];
     
 }
+
+- (void)datePickerChanged:(KBDatePickerView *)dpv {
+    NSLog(@"[KBDatePicker] changed: %@", dpv.date);
+}
+
 
 @end
