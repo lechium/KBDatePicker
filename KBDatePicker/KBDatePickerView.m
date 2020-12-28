@@ -87,6 +87,7 @@
 @property UILabel *dayLabel;
 @property UILabel *yearLabel;
 @property NSLayoutConstraint *widthConstraint;
+@property UILabel *unsupportedLabel;
 @end
 
 @implementation KBDatePickerView
@@ -209,13 +210,40 @@
     [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
 }
 
+#define MODE_CASE(a) case a: return @"a"
+
+- (char *)stringForMode {
+    switch (self.datePickerMode) {
+        case KBDatePickerModeDate: return "KBDatePickerModeDate";
+        case KBDatePickerModeDateAndTime: return "KBDatePickerModeDateAndTime";
+        case KBDatePickerModeCountDownTimer: return "KBDatePickerModeCountDownTimer";
+        case KBDatePickerModeTime: return "KBDatePickerModeTime";
+    }
+    return "Unknown Mode";
+}
+
+- (void)layoutUnsupportedView {
+    
+    if (_datePickerStackView != nil){
+        [_datePickerStackView removeAllArrangedSubviews];
+        [_datePickerStackView removeFromSuperview];
+        _datePickerStackView = nil;
+    }
+    
+    self.unsupportedLabel = [[UILabel alloc] init];
+    [self addSubview:self.unsupportedLabel];
+    self.unsupportedLabel.translatesAutoresizingMaskIntoConstraints = false;
+    [self.unsupportedLabel.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
+    [self.unsupportedLabel.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
+    self.unsupportedLabel.text = [self kb_stringWithFormat:"Error: currently '%s' is an unsuppported configuration.", [self stringForMode]];
+}
 
 - (void)layoutForDateAndTime {
-    
+    [self layoutUnsupportedView];
 }
 
 - (void)layoutForCountdownTimer {
-    
+    [self layoutUnsupportedView];
 }
 
 - (void)layoutLabelsForTime {
@@ -247,6 +275,11 @@
 
 
 - (void)viewSetupForMode {
+    
+    if (self.unsupportedLabel){
+        [self.unsupportedLabel removeFromSuperview];
+        self.unsupportedLabel = nil;
+    }
     switch (self.datePickerMode) {
         case KBDatePickerModeTime:
             [self layoutForTime];
@@ -288,11 +321,6 @@
     return [[self calendar] monthSymbols];
 }
 
-/*
- - (NSArray *)monthData {
- return @[@"January", @"Februrary", @"March", @"April", @"May", @"June", @"July", @"August", @"September", @"October", @"November", @"December"];
- }
- */
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
     
     if (self.datePickerMode == KBDatePickerModeTime){
@@ -596,7 +624,7 @@
         case KBTableViewTagHours:
             data = [self.hourData objectAtIndex: tableView.selectedIndexPath.row % self.hourData.count];
             break;
-    
+            
         case KBTableViewTagMonths:
             data = [self.monthData objectAtIndex:tableView.selectedIndexPath.row % self.monthData.count];
             break;
