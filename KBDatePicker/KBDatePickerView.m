@@ -70,6 +70,8 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 @interface KBDatePickerView () {
     NSDate *_currentDate;
+    NSDate *_minimumDate;
+    NSDate *_maximumDate;
     NSArray *_tableViews;
     BOOL _pmSelected;
     NSMutableDictionary *_selectedRowData;
@@ -129,6 +131,22 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self scrollToCurrentDateAnimated:animated];
 }
 
+- (void)setMinimumDate:(NSDate *)minimumDate {
+    _minimumDate = minimumDate;
+}
+
+- (NSDate *)minimumDate {
+    return _minimumDate;
+}
+
+- (NSDate *)maximumDate {
+    return _maximumDate;
+}
+
+- (void)setMaximumDate:(NSDate *)maximumDate {
+    _maximumDate = maximumDate;
+}
+
 - (void)setDate:(NSDate *)date {
     _currentDate = date;
     [self setDate:date animated:true];
@@ -140,7 +158,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (id)init {
     self = [super init];
-    _continuous = false;
+    _continuous = true;
     _pmSelected = false;
     if (![self date]){
         [self setDate:[NSDate date]];

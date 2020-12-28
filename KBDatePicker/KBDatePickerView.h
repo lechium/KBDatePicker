@@ -37,7 +37,9 @@ XX(KBDatePickerModeCountDownTimer, )
 DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 @interface KBDatePickerView: UIControl <UITableViewDelegate, UITableViewDataSource>
-@property NSDate * _Nonnull date;
+@property (nonnull, nonatomic, strong) NSDate *date;
+@property (nullable, nonatomic, strong) NSDate *minimumDate;
+@property (nullable, nonatomic, strong) NSDate *maximumDate;
 @property KBDatePickerMode datePickerMode;
 @property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
 @property BOOL continuous; //whether or not the date is immediately updated as soon as items are scrolled
