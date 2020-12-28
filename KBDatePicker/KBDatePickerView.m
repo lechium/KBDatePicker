@@ -312,14 +312,14 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (tableView == _monthTable){
-        return NUMBER_OF_CELLS;//[self calendar].monthSymbols.count;
+        return [self infiniteNumberOfRowsInSection:section];//[self calendar].monthSymbols.count;
     } else if (tableView == _dayTable){
         NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
         return days.length;
     } else if (tableView == _hourTable){
-        return [self hourNumberOfRowsInSection:section];
+        return [self infiniteNumberOfRowsInSection:section];
     } else if (tableView == _minuteTable){
-        return [self hourNumberOfRowsInSection:section];
+        return [self infiniteNumberOfRowsInSection:section];
     } else if (tableView == _amPMTable){
         return 2;
     } else {
@@ -345,9 +345,7 @@
     }];
 }
 
-- (NSInteger)hourNumberOfRowsInSection:(NSInteger)section
-{
-    // Return the number of rows in the section.
+- (NSInteger)infiniteNumberOfRowsInSection:(NSInteger)section {
     return NUMBER_OF_CELLS;
 }
 
@@ -394,9 +392,6 @@
     if (![[self.minuteTable selectedValue] isEqualToString:minuteValue]){
         [self scrollToValue:minuteValue inTableViewType:KBTableViewTagMinutes animated:animated];
     }
-    
-    
-    
 }
 
 - (void)scrollToValue:(id)value inTableViewType:(KBTableViewTag)type animated:(BOOL)animated {
@@ -435,31 +430,21 @@
     }
 }
 
-- (UITableViewCell *)minutesCellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"minutesCell";
-    UITableViewCell *cell = [_minuteTable dequeueReusableCellWithIdentifier:CellIdentifier];
+
+- (UITableViewCell *)infiniteCellForTableView:(KBTableView *)tableView atIndexPath:(NSIndexPath *)indexPath dataSource:(NSArray *)dataSource {
+    
+    static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     // Configure the cell...
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier];
     }
-    NSString *s = [self.minutesData objectAtIndex: indexPath.row % self.minutesData.count];
+    NSString *s = [dataSource objectAtIndex: indexPath.row % dataSource.count];
     [cell.textLabel setText: s];
     cell.textLabel.textAlignment = NSTextAlignmentCenter;
     return cell;
 }
 
-- (UITableViewCell *)hourCellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"hoursCell";
-    UITableViewCell *cell = [_hourTable dequeueReusableCellWithIdentifier:CellIdentifier];
-    // Configure the cell...
-    if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier];
-    }
-    NSString *s = [self.hourData objectAtIndex: indexPath.row % self.hourData.count];
-    [cell.textLabel setText: s];
-    cell.textLabel.textAlignment = NSTextAlignmentCenter;
-    return cell;
-}
 
 - (UITableViewCell *)amPMCellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"amPMCell";
@@ -482,21 +467,13 @@
     
     UITableViewCell *cell = nil;
     if (tableView == _hourTable){
-        return [self hourCellForRowAtIndexPath:indexPath];
+        return [self infiniteCellForTableView:(KBTableView*)tableView atIndexPath:indexPath dataSource:self.hourData];
     } else if (tableView == _minuteTable) {
-        return [self minutesCellForRowAtIndexPath:indexPath];
+        return [self infiniteCellForTableView:(KBTableView*)tableView atIndexPath:indexPath dataSource:self.minutesData];
     } else if (tableView == _amPMTable) {
         return [self amPMCellForRowAtIndexPath:indexPath];
     } else if (tableView == _monthTable) {
-        cell = [tableView dequeueReusableCellWithIdentifier:@"month"];
-        if (!cell){
-            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"month"];
-        }
-        
-        NSString *s = [self.monthData objectAtIndex: indexPath.row % self.monthData.count];
-        cell.textLabel.text = s;
-        //cell.textLabel.text = [[self calendar] monthSymbols][indexPath.row];
-        cell.textLabel.textAlignment = NSTextAlignmentCenter;
+        return [self infiniteCellForTableView:(KBTableView*)tableView atIndexPath:indexPath dataSource:self.monthData];
     } else if (tableView == _dayTable){
         cell = [tableView dequeueReusableCellWithIdentifier:@"day"];
         if (!cell){
@@ -619,7 +596,10 @@
         case KBTableViewTagHours:
             data = [self.hourData objectAtIndex: tableView.selectedIndexPath.row % self.hourData.count];
             break;
-            
+    
+        case KBTableViewTagMonths:
+            data = [self.monthData objectAtIndex:tableView.selectedIndexPath.row % self.monthData.count];
+            break;
         default:
             break;
     }
