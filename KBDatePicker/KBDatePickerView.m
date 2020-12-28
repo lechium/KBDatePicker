@@ -47,6 +47,15 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 @end
 @implementation KBTableView //nothing to implement yet, just getting some properties
 
+- (NSArray *)visibleValues {
+    __block NSMutableArray *visibleValues = [NSMutableArray new];
+    [self.visibleCells enumerateObjectsUsingBlock:^(__kindof UITableViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSString *value = obj.textLabel.text;
+        [visibleValues addObject:value];
+    }];
+    return visibleValues;;
+}
+
 - (NSIndexPath *)selectedIndexPath {
     return _selectedIndexPath;
 }
@@ -76,6 +85,13 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     BOOL _pmSelected;
     NSMutableDictionary *_selectedRowData;
     KBDatePickerMode _datePickerMode;
+    NSInteger _minYear;
+    NSInteger _maxYear;
+    NSInteger _yearSelected;
+    NSInteger _monthSelected;
+    NSInteger _daySelected;
+    NSInteger _hourSelected;
+    NSInteger _minuteSelected;
 }
 
 @property (nonatomic, strong) NSArray *hourData;
@@ -133,6 +149,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)setMinimumDate:(NSDate *)minimumDate {
     _minimumDate = minimumDate;
+    [self populateYearsForDateRange];
 }
 
 - (NSDate *)minimumDate {
@@ -145,6 +162,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)setMaximumDate:(NSDate *)maximumDate {
     _maximumDate = maximumDate;
+    [self populateYearsForDateRange];
 }
 
 - (void)setDate:(NSDate *)date {
@@ -344,9 +362,9 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     }
     for (int i = startIndex; i < count+startIndex; i++){
         if (leadingZero){
-            [_newArray addObject:[NSString stringWithFormat:@"%02i", i]];
+            [_newArray addObject:[self kb_stringWithFormat:"%02i", i]];
         } else {
-            [_newArray addObject:[NSString stringWithFormat:@"%i", i]];
+            [_newArray addObject:[self kb_stringWithFormat:"%i", i]];
         }
     }
     return _newArray;
@@ -376,6 +394,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         NSString *yearString = [self kb_stringWithFormat:"%i",yearIndex];
         DPLog(@"year index: %@", yearString);
         if (![[_yearTable selectedValue] isEqualToString:yearString]){
+            _yearSelected = yearIndex;
             [self scrollToValue:yearString inTableViewType:KBTableViewTagYears animated:animated];
         }
         //[_yearTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
@@ -395,9 +414,15 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     } else if (tableView == _amPMTable){
         return 2;
     } else if (tableView == _yearTable){
-        return [self infiniteNumberOfRowsInSection:section];
+        return _maxYear - _minYear;
     }
     return 0;
+}
+
++(id)todayInYear:(NSInteger)year {
+    NSDateComponents *dc = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitYear | NSCalendarUnitMonth fromDate:[NSDate date]];
+    dc.year = year;
+    return [[NSCalendar currentCalendar] dateFromComponents:dc];
 }
 
 - (void)updateDetailsIfContinuous:(NSIndexPath *)indexPath inTable:(KBTableView *)tableView {
@@ -413,6 +438,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         NSString *s = [dataSource objectAtIndex: normalizedIndex];
         DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
         components.month = normalizedIndex + 1;
+        _monthSelected = components.month;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
         _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
     } else if (tableView == _dayTable){
@@ -421,6 +447,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         NSString *s = [dataSource objectAtIndex: normalizedIndex];
         DPLog(@"_dayTable normalizedIndex: %lu s: %@", normalizedIndex, s);
         components.day = normalizedIndex + 1;
+        _daySelected = components.day;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
         _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
     } else if (tableView == _minuteTable){
@@ -429,6 +456,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         NSString *s = [dataSource objectAtIndex: normalizedIndex];
         DPLog(@"_minuteTable normalizedIndex: %lu s: %@", normalizedIndex, s);
         components.minute = normalizedIndex + 1;
+        _minuteSelected = components.minute;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
         _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
     } else if (tableView == _hourTable){
@@ -440,13 +468,22 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         }
         DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
         components.hour = normalizedIndex + 1;
+        _hourSelected = components.hour;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
         _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
     } else if (tableView == _yearTable){
         //NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
         NSInteger year = [_yearTable.selectedIndexPath row];
+        NSInteger adjustment = 1;
+        DPLog(@"_minYear: %lu", _minYear);
+        if (_minYear > 1){
+            DPLog(@"adjust the year, we dont start at 1!");
+            adjustment = 0;
+            year = [_yearTable.selectedValue integerValue];
+        }
         DPLog(@"year: %lu", year);
-        components.year = year + 1;
+        components.year = year + adjustment;
+        _yearSelected = components.year;
         NSDate *newDate = nil;
         do {
             newDate = [[self calendar] dateFromComponents:components];
@@ -486,15 +523,29 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         KBTableView *table = (KBTableView *)tableView;
         if ([table respondsToSelector:@selector(setSelectedIndexPath:)]){
             if (ip != nil){
-                DPLog(@"next ip: %lu table: %@", ip.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
-                if (tableView.tag == KBTableViewTagMonths){
-                    DPLog(@"MONTH CHANGED!!");
-                    [self populateDaysForCurrentMonth];
-                    [self.dayTable reloadData];
-                }
+                //DPLog(@"next ip: %lu table: %@", ip.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
                 [table setSelectedIndexPath:ip];
                 [self updateDetailsIfContinuous:ip inTable:table];
-                
+                switch (tableView.tag) {
+                    case KBTableViewTagDays:
+                        
+                        break;
+                        
+                    case KBTableViewTagHours:
+                        
+                        break;
+                        
+                    case KBTableViewTagYears:
+                        
+                        break;
+                        
+                    case KBTableViewTagMonths:
+                        [self populateDaysForCurrentMonth];
+                        break;
+                        
+                    default:
+                        break;
+                }
             }
         }
         [tableView selectRowAtIndexPath:ip animated:false scrollPosition:UITableViewScrollPositionTop];
@@ -509,24 +560,47 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)populateYearsForDateRange {
-    NSInteger minYear = [[self calendar] component:NSCalendarUnitYear fromDate:self.minimumDate];
-    NSInteger maxYear = [[self calendar] component:NSCalendarUnitYear fromDate:self.maximumDate];
-    DPLog(@"minYear: %lu", minYear);
-    DPLog(@"maxYear: %lu", maxYear);
+    
+    _minYear = self.minimumDate != nil ? [[self calendar] component:NSCalendarUnitYear fromDate:self.minimumDate] : 1;
+    _maxYear = self.maximumDate != nil ? [[self calendar] component:NSCalendarUnitYear fromDate:self.maximumDate] : NUMBER_OF_CELLS;
+    DPLog(@"minYear: %lu", _minYear);
+    DPLog(@"maxYear: %lu", _maxYear);
+    DPLog(@"selectedValue: %@", _yearTable.selectedValue);
+    DPLog(@"currentYear: %lu", _yearSelected);
+    if (!_yearTable.selectedValue && _yearSelected != 0){
+        if (_minYear > 1){
+            NSInteger yearDifference = _yearSelected - _minYear;
+            DPLog(@"year Difference: %lu", yearDifference);
+            [self.yearTable scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:yearDifference inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:false];
+        }
+    }
+    [self.yearTable reloadData];
+    
 }
 
 
 - (void)populateDaysForCurrentMonth {
     NSDateComponents *comp = [[self calendar] components:NSCalendarUnitMonth fromDate:self.date];
     NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
-    DPLog(@"month : %lu days %lu", comp.month, days.length);
-    self.dayData = [self createNumberArray:days.length zeroIndex:FALSE leadingZero:FALSE];
+    DPLog(@"month : %lu days %lu for: %@", comp.month, days.length, self.date);
+    self.dayData = [self createNumberArray:days.length zeroIndex:false leadingZero:false];
+    NSString *currentDay = [self kb_stringWithFormat:"%lu", _daySelected];
+    NSArray *visibleValues = [_dayTable visibleValues];
+    DPLog(@"_daySelected: %@ visible: %@", currentDay, visibleValues);
+    if (![visibleValues containsObject:currentDay]){
+        DPLog(@"##### BRUH");
+        [self scrollToValue:currentDay inTableViewType:KBTableViewTagDays animated:false];
+    }
+//    if (_daySelected > 0 && (!_dayTable.selectedValue || ![_dayTable.selectedValue isEqualToString:currentDay])){
+//        DPLog(@"going to day: %@", currentDay);
+//        [self scrollToValue:currentDay inTableViewType:KBTableViewTagDays animated:false];
+//    }
     [self.dayTable reloadData];
 }
 
 - (void)setupTimeData {
-    self.hourData = [self createNumberArray:12 zeroIndex:FALSE leadingZero:FALSE];
-    self.minutesData = [self createNumberArray:60 zeroIndex:TRUE leadingZero:TRUE];
+    self.hourData = [self createNumberArray:12 zeroIndex:false leadingZero:false];
+    self.minutesData = [self createNumberArray:60 zeroIndex:true leadingZero:true];
 }
 
 - (NSInteger)startIndexForHours {
@@ -614,7 +688,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             if (foundIndex != NSNotFound){
                 shiftIndex = foundIndex - relationalIndex;
                 if (self.monthTable.selectedIndexPath && currentValue){
-                    DPLog(@"current value: %@ relationalIndex: %lu found index: %lu, shift index: %.0f", currentValue, relationalIndex, foundIndex, shiftIndex);
+                    //DPLog(@"current value: %@ relationalIndex: %lu found index: %lu, shift index: %.0f", currentValue, relationalIndex, foundIndex, shiftIndex);
                     ip = [NSIndexPath indexPathForRow:self.monthTable.selectedIndexPath.row+shiftIndex inSection:0];
                 } else {
                     ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
@@ -632,11 +706,16 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
                 ip = [NSIndexPath indexPathForRow:[self indexForDays:dayCount]+foundIndex inSection:0];
                 //DPLog(@"found index: %lu", ip.row);
                 [self.dayTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+                [_dayTable selectRowAtIndexPath:ip animated:animated scrollPosition:UITableViewScrollPositionTop];
                 [self delayedUpdateFocus];
             }
-        
+            break;
         case KBTableViewTagYears:
             foundIndex = [value integerValue]; //FIXME: this will not work when custom min/max dates are set!
+            if (_minYear > 1){
+                NSInteger intValue = [value integerValue];
+                foundIndex = intValue - _minYear;
+            }
             DPLog(@"foundIndex: %lu from value:%@", foundIndex, value);
             ip = [NSIndexPath indexPathForRow:foundIndex inSection:0];
             [self.yearTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
@@ -707,7 +786,11 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"year"];
         }
         //NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
-        cell.textLabel.text = [self kb_stringWithFormat:"%lu", indexPath.row+1];
+        if (_minYear > 1){
+            cell.textLabel.text = [self kb_stringWithFormat:"%lu", _minYear+indexPath.row+1];
+        } else {
+            cell.textLabel.text = [self kb_stringWithFormat:"%lu", indexPath.row+1];
+        }
         //cell.textLabel.text = [NSString stringWithFormat:@"%lu", year - 1 + indexPath.row];
         cell.textLabel.textAlignment = NSTextAlignmentCenter;
     }
@@ -717,6 +800,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
+    return;
     NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
     if (tableView == _monthTable){
         
