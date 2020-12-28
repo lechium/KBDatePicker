@@ -2,6 +2,7 @@
 
 #define STACK_VIEW_HEIGHT 128
 DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
+DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 @interface UITableView (yep)
 - (NSIndexPath *)_focusedCellIndexPath;
@@ -236,18 +237,6 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
     [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
 }
 
-#define MODE_CASE(a) case a: return @"a"
-
-- (char *)stringForMode {
-    switch (self.datePickerMode) {
-        case KBDatePickerModeDate: return "KBDatePickerModeDate";
-        case KBDatePickerModeDateAndTime: return "KBDatePickerModeDateAndTime";
-        case KBDatePickerModeCountDownTimer: return "KBDatePickerModeCountDownTimer";
-        case KBDatePickerModeTime: return "KBDatePickerModeTime";
-    }
-    return "Unknown Mode";
-}
-
 - (void)layoutUnsupportedView {
     
     if (_datePickerStackView != nil){
@@ -261,7 +250,7 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
     self.unsupportedLabel.translatesAutoresizingMaskIntoConstraints = false;
     [self.unsupportedLabel.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
     [self.unsupportedLabel.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
-    self.unsupportedLabel.text = [self kb_stringWithFormat:"Error: currently '%s' is an unsuppported configuration.", [self stringForMode]];
+    self.unsupportedLabel.text = [self kb_stringWithFormat:"Error: currently '%s' is an unsuppported configuration.", [NSStringFromKBDatePickerMode(self.datePickerMode) UTF8String]];
 }
 
 - (void)layoutForDateAndTime {

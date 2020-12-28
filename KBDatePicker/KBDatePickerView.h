@@ -17,6 +17,8 @@
 - (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
 @end
 
+ // Enums are all defined like this to make it easier to convert them to / from string versions of themselves.
+ 
 #define TABLE_TAG(XX) \
 XX(KBTableViewTagMonths, = 501) \
 XX(KBTableViewTagDays, )\
@@ -27,13 +29,12 @@ XX(KBTableViewTagAMPM, )\
 XX(KBTaleViewWeekday, )
 DECLARE_ENUM(KBTableViewTag, TABLE_TAG)
 
-typedef NS_ENUM(NSInteger, KBDatePickerMode) {
-    KBDatePickerModeTime,           // Displays hour, minute, and optionally AM/PM designation depending on the locale setting (e.g. 6 | 53 | PM)
-    KBDatePickerModeDate,           // Displays month, day, and year depending on the locale setting (e.g. November | 15 | 2007)
-    KBDatePickerModeDateAndTime,    // Displays date, hour, minute, and optionally AM/PM designation depending on the locale setting (e.g. Wed Nov 15 | 6 | 53 | PM)
-    KBDatePickerModeCountDownTimer, // Displays hour and minute (e.g. 1 | 53)
-};
-
+#define PICKER_MODE(XX) \
+XX(KBDatePickerModeTime, ) \
+XX(KBDatePickerModeDate, ) \
+XX(KBDatePickerModeDateAndTime, ) \
+XX(KBDatePickerModeCountDownTimer, )
+DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 @interface KBDatePickerView: UIControl <UITableViewDelegate, UITableViewDataSource>
 @property NSDate * _Nonnull date;
