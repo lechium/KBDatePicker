@@ -217,6 +217,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     }
     
     [self populateDaysForCurrentMonth];
+    [self populateYearsForDateRange];
     self.monthLabel = [[UILabel alloc] init];
     self.monthLabel.translatesAutoresizingMaskIntoConstraints = false;
     self.monthLabel.text = @"Month";
@@ -506,6 +507,14 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 - (NSInteger)infiniteNumberOfRowsInSection:(NSInteger)section {
     return NUMBER_OF_CELLS;
 }
+
+- (void)populateYearsForDateRange {
+    NSInteger minYear = [[self calendar] component:NSCalendarUnitYear fromDate:self.minimumDate];
+    NSInteger maxYear = [[self calendar] component:NSCalendarUnitYear fromDate:self.maximumDate];
+    DPLog(@"minYear: %lu", minYear);
+    DPLog(@"maxYear: %lu", maxYear);
+}
+
 
 - (void)populateDaysForCurrentMonth {
     NSDateComponents *comp = [[self calendar] components:NSCalendarUnitMonth fromDate:self.date];

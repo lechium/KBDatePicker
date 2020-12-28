@@ -85,6 +85,8 @@
     [self.toggleTypeButton addTarget:self action:@selector(toggleMode) forControlEvents:UIControlEventPrimaryActionTriggered];
      
     [self.datePickerView addTarget:self action:@selector(datePickerChanged:) forControlEvents:UIControlEventValueChanged];
+    [self.datePickerView setMinimumDate:[NSDate distantPast]];
+    [self.datePickerView setMaximumDate:[NSDate distantFuture]];
 }
 
 - (void)datePickerChanged:(KBDatePickerView *)dpv {
