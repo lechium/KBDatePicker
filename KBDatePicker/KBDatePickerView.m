@@ -94,6 +94,24 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
 
 @implementation KBDatePickerView
 
+- (void)menuGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state == UIGestureRecognizerStateEnded){
+        LOG_SELF;
+        //[self setPreferredFocusedItem:self.toggleTypeButton];
+        UIApplication *sharedApp = [UIApplication sharedApplication];
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        UIWindow *window = [sharedApp keyWindow];
+        #pragma clang diagnostic pop
+        UIViewController *rootViewController = [window rootViewController];
+        if (rootViewController.view == self.superview){
+            [rootViewController setNeedsFocusUpdate];
+            [rootViewController updateFocusIfNeeded];
+        }
+    }
+}
+
+
 - (NSDate *)date {
     if (!_currentDate){
         [self setDate:[NSDate date]];
@@ -126,6 +144,10 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
     if (![self date]){
         [self setDate:[NSDate date]];
     }
+    UITapGestureRecognizer *menuTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(menuGestureRecognized:)];
+    menuTap.numberOfTapsRequired = 1;
+    menuTap.allowedPressTypes = @[@(UIPressTypeMenu)];
+    [self addGestureRecognizer:menuTap];
     _selectedRowData = [NSMutableDictionary new];
     _datePickerMode = KBDatePickerModeDate;
     [self layoutViews];
@@ -342,6 +364,7 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
             [self scrollToValue:dayString inTableViewType:KBTableViewTagDays animated:animated];
         }
         [_yearTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
+        [self delayedUpdateFocus];
     }
 }
 
@@ -451,6 +474,14 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
     }
 }
 
+- (void)delayedUpdateFocus {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self setNeedsFocusUpdate];
+        [self updateFocusIfNeeded];
+    });
+}
+
+
 - (void)scrollToValue:(id)value inTableViewType:(KBTableViewTag)type animated:(BOOL)animated {
     NSInteger foundIndex = NSNotFound;
     NSIndexPath *ip = nil;
@@ -474,6 +505,7 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
                 ip = [NSIndexPath indexPathForRow:[self startIndexForMinutes]+foundIndex inSection:0];
                 //DPLog(@"found index: %lu", ip.row);
                 [self.minuteTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+                [self delayedUpdateFocus];
             }
             break;
             
@@ -495,6 +527,7 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
                 }
                 [self.monthTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
                 [_monthTable selectRowAtIndexPath:ip animated:animated scrollPosition:UITableViewScrollPositionTop];
+                [self delayedUpdateFocus];
                 //[self.monthTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
             }
             break;
@@ -505,6 +538,7 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
                 ip = [NSIndexPath indexPathForRow:[self indexForDays:dayCount]+foundIndex inSection:0];
                 //DPLog(@"found index: %lu", ip.row);
                 [self.dayTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+                [self delayedUpdateFocus];
             }
             
         default:
@@ -579,23 +613,6 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
     return cell;
 }
 
-- (NSInteger)currentHoursIfApplicable {
-    if (self.datePickerMode == KBDatePickerModeTime){
-        NSIndexPath *indexPath = [_hourTable _focusedCellIndexPath];
-        NSString *s = [self.hourData objectAtIndex: indexPath.row % self.hourData.count];
-        return s.integerValue;
-    }
-    return 0;
-}
-
-- (NSInteger)currentMinutesIfApplicable {
-    if (self.datePickerMode == KBDatePickerModeTime){
-        NSIndexPath *indexPath = [_minuteTable _focusedCellIndexPath];
-        NSString *s = [self.minutesData objectAtIndex: indexPath.row % self.minutesData.count];
-        return s.integerValue;
-    }
-    return 0;
-}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     

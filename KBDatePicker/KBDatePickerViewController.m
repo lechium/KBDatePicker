@@ -8,15 +8,28 @@
 
 #import "KBDatePickerViewController.h"
 #import "KBDatePickerView.h"
-
+/*
+@interface UIViewController (priv)
+@property(nonatomic) id  preferredFocusedItem;
+@end
+*/
 @interface KBDatePickerViewController() {
     
 }
 @property KBDatePickerView *datePickerView;
 @property UILabel *datePickerLabel;
+@property UIButton *toggleTypeButton;
 @end
 
+
 @implementation KBDatePickerViewController
+
+- (NSArray *)preferredFocusEnvironments {
+    if (self.toggleTypeButton){
+        return @[self.toggleTypeButton];
+    }
+    return nil;
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -30,6 +43,16 @@
         [self.datePickerView setDatePickerMode:KBDatePickerModeTime];
     }
 }
+
+- (void)menuGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state == UIGestureRecognizerStateEnded){
+        LOG_SELF;
+        //[self setPreferredFocusedItem:self.toggleTypeButton];
+        [self setNeedsFocusUpdate];
+        [self updateFocusIfNeeded];
+    }
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -51,15 +74,15 @@
         weakSelf.datePickerLabel.text = date.description;
     };
     
-    UIButton *toggleTypeButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    toggleTypeButton.translatesAutoresizingMaskIntoConstraints = false;
-    [self.view addSubview:toggleTypeButton];
-    [toggleTypeButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
-    [toggleTypeButton.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-40].active = true;
-    [toggleTypeButton setTitle:@"Toggle" forState:UIControlStateNormal];
-    [toggleTypeButton.heightAnchor constraintEqualToConstant:60].active = true;
-    [toggleTypeButton.widthAnchor constraintEqualToConstant:200].active = true;
-    [toggleTypeButton addTarget:self action:@selector(toggleMode) forControlEvents:UIControlEventPrimaryActionTriggered];
+    self.toggleTypeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.toggleTypeButton.translatesAutoresizingMaskIntoConstraints = false;
+    [self.view addSubview:self.toggleTypeButton];
+    [self.toggleTypeButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
+    [self.toggleTypeButton.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-40].active = true;
+    [self.toggleTypeButton setTitle:@"Toggle" forState:UIControlStateNormal];
+    [self.toggleTypeButton.heightAnchor constraintEqualToConstant:60].active = true;
+    [self.toggleTypeButton.widthAnchor constraintEqualToConstant:200].active = true;
+    [self.toggleTypeButton addTarget:self action:@selector(toggleMode) forControlEvents:UIControlEventPrimaryActionTriggered];
      
     [self.datePickerView addTarget:self action:@selector(datePickerChanged:) forControlEvents:UIControlEventValueChanged];
 }
