@@ -97,12 +97,12 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
 - (void)menuGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded){
         LOG_SELF;
-        //[self setPreferredFocusedItem:self.toggleTypeButton];
+        //[self setPreferredFocusedItem:self.toggleTypeButton]; //PRIVATE_API call, trying to avoid those to stay app store friendly!
         UIApplication *sharedApp = [UIApplication sharedApplication];
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         UIWindow *window = [sharedApp keyWindow];
-        #pragma clang diagnostic pop
+#pragma clang diagnostic pop
         UIViewController *rootViewController = [window rootViewController];
         if (rootViewController.view == self.superview){
             [rootViewController setNeedsFocusUpdate];
@@ -384,6 +384,63 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
     }
 }
 
+- (void)updateDetailsIfContinuous:(NSIndexPath *)indexPath inTable:(KBTableView *)tableView {
+    if (!self.continuous){
+        return;
+    }
+    LOG_SELF;
+    NSDateComponents *components = [[self calendar] components:NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitYear fromDate:self.date];
+    NSArray *dataSource = nil;
+    NSInteger normalizedIndex = NSNotFound;
+    if (tableView == _monthTable){
+        dataSource = self.monthData;
+        normalizedIndex = indexPath.row % dataSource.count;
+        NSString *s = [dataSource objectAtIndex: normalizedIndex];
+        DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
+        components.month = normalizedIndex + 1;
+        NSDate *newDate = [[self calendar] dateFromComponents:components];
+        _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
+    } else if (tableView == _dayTable){
+        dataSource = self.dayData;
+        normalizedIndex = indexPath.row % dataSource.count;
+        NSString *s = [dataSource objectAtIndex: normalizedIndex];
+        DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
+        components.day = normalizedIndex + 1;
+        NSDate *newDate = [[self calendar] dateFromComponents:components];
+        _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
+    } else if (tableView == _minuteTable){
+        dataSource = self.minutesData;
+        normalizedIndex = indexPath.row % dataSource.count;
+        NSString *s = [dataSource objectAtIndex: normalizedIndex];
+        DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
+        components.minute = normalizedIndex + 1;
+        NSDate *newDate = [[self calendar] dateFromComponents:components];
+        _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
+    } else if (tableView == _hourTable){
+        dataSource = self.hourData;
+        normalizedIndex = indexPath.row % dataSource.count;
+        NSString *s = [dataSource objectAtIndex: normalizedIndex];
+        DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
+        components.hour = normalizedIndex + 1;
+        NSDate *newDate = [[self calendar] dateFromComponents:components];
+        _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.
+    } else if (tableView == _yearTable){
+        NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
+        DPLog(@"year: %lu", year);
+        components.year = year + 1;
+        NSDate *newDate = nil;
+        do {
+            newDate = [[self calendar] dateFromComponents:components];
+            components.day -= 1;
+        } while (newDate == nil || ([[self calendar] component:NSCalendarUnitMonth fromDate:newDate] != components.month));
+        _currentDate = newDate;
+    }
+    if (self.itemSelectedBlock){
+           self.itemSelectedBlock(self.date);
+       }
+       [self sendActionsForControlEvents:UIControlEventValueChanged];
+}
+
 - (void)selectMonthAtIndex:(NSInteger)index {
     NSDateComponents *comp = [[self calendar] components:NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitYear fromDate:self.date];
     NSInteger adjustedIndex = index;
@@ -402,7 +459,7 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
         KBTableView *table = (KBTableView *)tableView;
         if ([table respondsToSelector:@selector(setSelectedIndexPath:)]){
             if (ip != nil){
-                
+                [self updateDetailsIfContinuous:ip inTable:table];
                 DPLog(@"next ip: %lu table: %@", ip.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
                 if (tableView.tag == KBTableViewTagMonths){
                     DPLog(@"MONTH CHANGED!!");
@@ -428,6 +485,7 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
     NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
     DPLog(@"month : %lu days %lu", comp.month, days.length);
     self.dayData = [self createNumberArray:days.length zeroIndex:FALSE leadingZero:FALSE];
+    [self.dayTable reloadData];
 }
 
 - (void)setupTimeData {
@@ -624,9 +682,12 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
         NSInteger month = adjustedRow + 1;
         components.month = month;
         NSDate *newDate = nil;
+        NSInteger count = 0;
         do {
+            DPLog(@"count: %lu", count);
             newDate = [[self calendar] dateFromComponents:components];
             components.day -= 1;
+            count++;
         } while (newDate == nil || ([[self calendar] component:NSCalendarUnitMonth fromDate:newDate] != month));
         [self setDate:newDate];
         [self populateDaysForCurrentMonth];
@@ -682,6 +743,10 @@ DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
         }
     }
     
+    [self selectionOccured];
+}
+
+- (void)selectionOccured {
     if (self.itemSelectedBlock){
         self.itemSelectedBlock(self.date);
     }
