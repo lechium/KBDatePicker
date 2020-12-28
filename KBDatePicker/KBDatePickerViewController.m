@@ -68,11 +68,11 @@
     [self.datePickerView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
     [self.datePickerView.widthAnchor constraintEqualToConstant:720].active = true;
     [self.datePickerView.heightAnchor constraintEqualToConstant:128+81+60+40].active = true;
-    __weak typeof(self) weakSelf = self;
-    self.datePickerView.itemSelectedBlock = ^(NSDate * _Nullable date) {
-        NSLog(@"[KBDatePicker] date selected: %@", date);
-        weakSelf.datePickerLabel.text = date.description;
-    };
+    //__weak typeof(self) weakSelf = self;
+    //self.datePickerView.itemSelectedBlock = ^(NSDate * _Nullable date) {
+        //NSLog(@"[KBDatePicker] date selected: %@", date);
+        //weakSelf.datePickerLabel.text = date.description;
+    //};
     
     self.toggleTypeButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.toggleTypeButton.translatesAutoresizingMaskIntoConstraints = false;
@@ -89,6 +89,15 @@
 
 - (void)datePickerChanged:(KBDatePickerView *)dpv {
     NSLog(@"[KBDatePicker] changed: %@", dpv.date);
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    [dateFormatter setDateFormat:@"E, MMM d, yyyy h:mm a"];
+
+    NSString *strDate = [dateFormatter stringFromDate:dpv.date];
+    
+    NSLog(@"strDate: %@", strDate); // Result: strDate: 2014/05/19 10:51:50
+    self.datePickerLabel.text = strDate;
 }
 
 @end
