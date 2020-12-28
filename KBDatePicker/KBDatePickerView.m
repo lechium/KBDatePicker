@@ -1,6 +1,7 @@
 #import "KBDatePickerView.h"
 
 #define STACK_VIEW_HEIGHT 128
+DEFINE_ENUM(KBTableViewTag, TABLE_TAG)
 
 @interface UITableView (yep)
 - (NSIndexPath *)_focusedCellIndexPath;
@@ -120,6 +121,7 @@
 
 - (id)init {
     self = [super init];
+    _continuous = false;
     _pmSelected = false;
     if (![self date]){
         [self setDate:[NSDate date]];
@@ -359,6 +361,17 @@
     }
 }
 
+- (void)selectMonthAtIndex:(NSInteger)index {
+    NSDateComponents *comp = [[self calendar] components:NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitYear fromDate:self.date];
+    NSInteger adjustedIndex = index;
+    if (index > self.monthData.count){
+        adjustedIndex = index % self.monthData.count;
+    }
+    comp.month = adjustedIndex;
+    [self setDate:[[self calendar] dateFromComponents:comp]];
+    
+}
+
 - (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
     [coordinator addCoordinatedAnimations:^{
         
@@ -366,7 +379,8 @@
         KBTableView *table = (KBTableView *)tableView;
         if ([table respondsToSelector:@selector(setSelectedIndexPath:)]){
             if (ip != nil){
-                DPLog(@"next ip: %lu %li", ip.row, (long)tableView.tag);
+                
+                DPLog(@"next ip: %lu table: %@", ip.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
                 if (tableView.tag == KBTableViewTagMonths){
                     DPLog(@"MONTH CHANGED!!");
                     [self populateDaysForCurrentMonth];
@@ -441,6 +455,9 @@
     NSInteger foundIndex = NSNotFound;
     NSIndexPath *ip = nil;
     NSInteger dayCount = self.dayData.count;
+    NSInteger relationalIndex = 0;
+    CGFloat shiftIndex = 0.0;
+    NSString *currentValue = nil;
     switch (type) {
         case KBTableViewTagHours:
             foundIndex = [self.hourData indexOfObject:value];
@@ -461,11 +478,24 @@
             break;
             
         case KBTableViewTagMonths:
-            foundIndex = [self.monthData indexOfObject:value];
+            //value = "December";
+            currentValue = self.monthTable.selectedValue; //March
+            relationalIndex = [self.monthData indexOfObject:currentValue]; //2
+            foundIndex = [self.monthData indexOfObject:value]; //11
+            
+            //11 - 2 = 9 : go up 9 indexes
+            //2 - 11 = -9 : go back 9 indexes
             if (foundIndex != NSNotFound){
-                ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
-                //DPLog(@"found index: %lu", ip.row);
+                shiftIndex = foundIndex - relationalIndex;
+                if (self.monthTable.selectedIndexPath && currentValue){
+                    DPLog(@"current value: %@ relationalIndex: %lu found index: %lu, shift index: %.0f", currentValue, relationalIndex, foundIndex, shiftIndex);
+                    ip = [NSIndexPath indexPathForRow:self.monthTable.selectedIndexPath.row+shiftIndex inSection:0];
+                } else {
+                    ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
+                }
                 [self.monthTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+                [_monthTable selectRowAtIndexPath:ip animated:animated scrollPosition:UITableViewScrollPositionTop];
+                //[self.monthTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
             }
             break;
             

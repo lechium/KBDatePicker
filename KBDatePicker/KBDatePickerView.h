@@ -1,11 +1,6 @@
 #import <UIKit/UIKit.h>
-
+#import "Macros.h"
 #define NUMBER_OF_CELLS 100000
-
-#define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
-#define LOG_SELF        NSLog(@"[KBDatePickerView] %@ %@", self, NSStringFromSelector(_cmd))
-#define DPLog(format, ...) NSLog(@"[KBDatePickerView] %@",[NSString stringWithFormat:format, ## __VA_ARGS__]);
-#define DLOG_SELF DLog(@"%@ %@", self, NSStringFromSelector(_cmd))
 
 @interface UIView (Helper)
 -(void)removeAllSubviews;
@@ -22,15 +17,15 @@
 - (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
 @end
 
-typedef NS_ENUM(NSInteger, KBTableViewTag) {
-    KBTableViewTagMonths = 501,
-    KBTableViewTagDays,
-    KBTableViewTagYears,
-    KBTableViewTagHours,
-    KBTableViewTagMinutes,
-    KBTableViewTagAMPM,
-    KBTaleViewWeekday,
-};
+#define TABLE_TAG(XX) \
+XX(KBTableViewTagMonths, = 501) \
+XX(KBTableViewTagDays, )\
+XX(KBTableViewTagYears, )\
+XX(KBTableViewTagHours, )\
+XX(KBTableViewTagMinutes, )\
+XX(KBTableViewTagAMPM, )\
+XX(KBTaleViewWeekday, )
+DECLARE_ENUM(KBTableViewTag, TABLE_TAG)
 
 typedef NS_ENUM(NSInteger, KBDatePickerMode) {
     KBDatePickerModeTime,           // Displays hour, minute, and optionally AM/PM designation depending on the locale setting (e.g. 6 | 53 | PM)
@@ -44,4 +39,10 @@ typedef NS_ENUM(NSInteger, KBDatePickerMode) {
 @property NSDate * _Nonnull date;
 @property KBDatePickerMode datePickerMode;
 @property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
+@property BOOL continuous; //whether or not the date is immediately updated as soon as items are scrolled
 @end
+
+#define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
+#define LOG_SELF        NSLog(@"[KBDatePickerView] %@ %@", self, NSStringFromSelector(_cmd))
+#define DPLog(format, ...) NSLog(@"[KBDatePickerView] %@",[NSString stringWithFormat:format, ## __VA_ARGS__]);
+#define DLOG_SELF DLog(@"%@ %@", self, NSStringFromSelector(_cmd))

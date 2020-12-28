@@ -16,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		323F6BC22599CD060055BDD6 /* Macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		325D7B1C25979B7B00CC6B10 /* KBDatePicker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KBDatePicker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		325D7B1F25979B7B00CC6B10 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		325D7B2025979B7B00CC6B10 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -60,6 +61,7 @@
 		325D7B1E25979B7B00CC6B10 /* KBDatePicker */ = {
 			isa = PBXGroup;
 			children = (
+				323F6BC22599CD060055BDD6 /* Macros.h */,
 				325D7B1F25979B7B00CC6B10 /* AppDelegate.h */,
 				325D7B2025979B7B00CC6B10 /* AppDelegate.m */,
 				325D7B392597B97200CC6B10 /* KBDatePickerView.h */,
