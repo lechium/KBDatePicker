@@ -284,18 +284,27 @@
     }
     return _newArray;
 }
-
 - (NSArray *)monthData {
-    return @[@"January", @"Februrary", @"March", @"April", @"May", @"June", @"July", @"August", @"September", @"October", @"November", @"December"];
+    return [[self calendar] monthSymbols];
 }
 
+/*
+ - (NSArray *)monthData {
+ return @[@"January", @"Februrary", @"March", @"April", @"May", @"June", @"July", @"August", @"September", @"October", @"November", @"December"];
+ }
+ */
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
     
     if (self.datePickerMode == KBDatePickerModeTime){
         [self loadTimeFromDateAnimated:animated];
     } else {
         NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
-        [_monthTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.month-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
+        NSInteger monthIndex = components.month-1;
+        NSString *monthSymbol = self.monthData[monthIndex];
+        if (![self.monthTable.selectedValue isEqualToString:monthSymbol]){
+            [self scrollToValue:monthSymbol inTableViewType:KBTableViewTagMonths animated:animated];
+        }
+        //[_monthTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.month-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
         [_dayTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:components.day-1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
         [_yearTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0] animated:animated scrollPosition:UITableViewScrollPositionTop];
     }
@@ -303,7 +312,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (tableView == _monthTable){
-        return [self calendar].monthSymbols.count;
+        return NUMBER_OF_CELLS;//[self calendar].monthSymbols.count;
     } else if (tableView == _dayTable){
         NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
         return days.length;
@@ -379,8 +388,13 @@
     NSString *hourValue = [self kb_stringWithFormat:"%lu", hour];
     NSString *minuteValue = [self kb_stringWithFormat:"%lu", minutes];
     DPLog(@"hours %@ minutes %@", hourValue, minuteValue);
-    [self scrollToValue:hourValue inTableViewType:KBTableViewTagHours animated:animated];
-    [self scrollToValue:minuteValue inTableViewType:KBTableViewTagMinutes animated:animated];
+    if (![[self.hourTable selectedValue] isEqualToString:hourValue]){
+        [self scrollToValue:hourValue inTableViewType:KBTableViewTagHours animated:animated];
+    }
+    if (![[self.minuteTable selectedValue] isEqualToString:minuteValue]){
+        [self scrollToValue:minuteValue inTableViewType:KBTableViewTagMinutes animated:animated];
+    }
+    
     
     
 }
@@ -393,7 +407,7 @@
             foundIndex = [self.hourData indexOfObject:value];
             if (foundIndex != NSNotFound){
                 ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
-                DPLog(@"found index: %@", ip);
+                DPLog(@"found index: %lu", ip.row);
                 [self.hourTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
             }
             break;
@@ -402,8 +416,17 @@
             foundIndex = [self.minutesData indexOfObject:value];
             if (foundIndex != NSNotFound){
                 ip = [NSIndexPath indexPathForRow:[self startIndexForMinutes]+foundIndex inSection:0];
-                DPLog(@"found index: %@", ip);
+                DPLog(@"found index: %lu", ip.row);
                 [self.minuteTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+            }
+            break;
+            
+        case KBTableViewTagMonths:
+            foundIndex = [self.monthData indexOfObject:value];
+            if (foundIndex != NSNotFound){
+                ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
+                DPLog(@"found index: %lu", ip.row);
+                [self.monthTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
             }
             break;
             
@@ -469,7 +492,10 @@
         if (!cell){
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"month"];
         }
-        cell.textLabel.text = [[self calendar] monthSymbols][indexPath.row];
+        
+        NSString *s = [self.monthData objectAtIndex: indexPath.row % self.monthData.count];
+        cell.textLabel.text = s;
+        //cell.textLabel.text = [[self calendar] monthSymbols][indexPath.row];
         cell.textLabel.textAlignment = NSTextAlignmentCenter;
     } else if (tableView == _dayTable){
         cell = [tableView dequeueReusableCellWithIdentifier:@"day"];
@@ -512,7 +538,10 @@
     
     NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
     if (tableView == _monthTable){
-        NSInteger month = indexPath.row + 1;
+        
+        //NSString *s = [self.monthData objectAtIndex: indexPath.row % self.monthData.count];
+        NSInteger adjustedRow = indexPath.row % self.monthData.count;
+        NSInteger month = adjustedRow + 1;
         components.month = month;
         NSDate *newDate = nil;
         do {
@@ -659,11 +688,9 @@
     //[self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
     
     [self setupLabelsForMode];
+    [self scrollToCurrentDateAnimated:false];
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-         [self scrollToCurrentDateAnimated:true];
-    });
-
+    
 }
 
 @end

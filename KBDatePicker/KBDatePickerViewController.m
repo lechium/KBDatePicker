@@ -23,9 +23,16 @@
     //[self scrollToCurrentDateAnimated:true];
 }
 
+- (void)toggleMode {
+    if (self.datePickerView.datePickerMode == KBDatePickerModeTime){
+        [self.datePickerView setDatePickerMode:KBDatePickerModeDate];
+    } else {
+        [self.datePickerView setDatePickerMode:KBDatePickerModeTime];
+    }
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     self.datePickerView = [KBDatePickerView new];
     self.datePickerView.translatesAutoresizingMaskIntoConstraints = false;
     [self.view addSubview:self.datePickerView];
@@ -44,13 +51,21 @@
         weakSelf.datePickerLabel.text = date.description;
     };
     
+    UIButton *toggleTypeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    toggleTypeButton.translatesAutoresizingMaskIntoConstraints = false;
+    [self.view addSubview:toggleTypeButton];
+    [toggleTypeButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
+    [toggleTypeButton.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-40].active = true;
+    [toggleTypeButton setTitle:@"Toggle" forState:UIControlStateNormal];
+    [toggleTypeButton.heightAnchor constraintEqualToConstant:60].active = true;
+    [toggleTypeButton.widthAnchor constraintEqualToConstant:200].active = true;
+    [toggleTypeButton addTarget:self action:@selector(toggleMode) forControlEvents:UIControlEventPrimaryActionTriggered];
+     
     [self.datePickerView addTarget:self action:@selector(datePickerChanged:) forControlEvents:UIControlEventValueChanged];
-    
 }
 
 - (void)datePickerChanged:(KBDatePickerView *)dpv {
     NSLog(@"[KBDatePicker] changed: %@", dpv.date);
 }
-
 
 @end
