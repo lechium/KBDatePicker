@@ -82,6 +82,7 @@
     [self.toggleTypeButton.heightAnchor constraintEqualToConstant:60].active = true;
     [self.toggleTypeButton.widthAnchor constraintEqualToConstant:200].active = true;
     [self.toggleTypeButton addTarget:self action:@selector(toggleMode) forControlEvents:UIControlEventPrimaryActionTriggered];
+    
     [self.datePickerView addTarget:self action:@selector(datePickerChanged:) forControlEvents:UIControlEventValueChanged];
     
     UIFocusGuide *focusGuideLeft = [[UIFocusGuide alloc] init];
