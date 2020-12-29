@@ -455,7 +455,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         normalizedIndex = indexPath.row % dataSource.count;
         NSString *s = [dataSource objectAtIndex: normalizedIndex];
         DPLog(@"_minuteTable normalizedIndex: %lu s: %@", normalizedIndex, s);
-        components.minute = normalizedIndex + 1;
+        components.minute = normalizedIndex;
         _minuteSelected = components.minute;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
         _currentDate = newDate; //set ivar so w dont set off any additional UI craziness.

@@ -83,8 +83,25 @@
     [self.toggleTypeButton.widthAnchor constraintEqualToConstant:200].active = true;
     [self.toggleTypeButton addTarget:self action:@selector(toggleMode) forControlEvents:UIControlEventPrimaryActionTriggered];
     [self.datePickerView addTarget:self action:@selector(datePickerChanged:) forControlEvents:UIControlEventValueChanged];
-    //[self.datePickerView setMinimumDate:[KBDatePickerView todayInYear:2000]];
-    //[self.datePickerView setMaximumDate:[NSDate distantFuture]];
+    
+    UIFocusGuide *focusGuideLeft = [[UIFocusGuide alloc] init];
+    [self.view addLayoutGuide:focusGuideLeft];
+    [focusGuideLeft.topAnchor constraintEqualToAnchor:self.datePickerView.topAnchor].active = true;
+    [focusGuideLeft.bottomAnchor constraintEqualToAnchor:self.datePickerView.bottomAnchor].active = true;
+    [focusGuideLeft.widthAnchor constraintEqualToConstant:40].active = true;
+    [focusGuideLeft.rightAnchor constraintEqualToAnchor:self.datePickerView.leftAnchor].active = true;
+    focusGuideLeft.preferredFocusEnvironments = @[self.toggleTypeButton];
+    
+    UIFocusGuide *focusGuideRight = [[UIFocusGuide alloc] init];
+    [self.view addLayoutGuide:focusGuideRight];
+    [focusGuideRight.topAnchor constraintEqualToAnchor:self.datePickerView.topAnchor].active = true;
+    [focusGuideRight.bottomAnchor constraintEqualToAnchor:self.datePickerView.bottomAnchor].active = true;
+    [focusGuideRight.leftAnchor constraintEqualToAnchor:self.datePickerView.rightAnchor].active = true;
+    [focusGuideRight.widthAnchor constraintEqualToConstant:40].active = true;
+    focusGuideRight.preferredFocusEnvironments = @[self.toggleTypeButton];
+    
+    [self.datePickerView setMinimumDate:[KBDatePickerView todayInYear:2000]];
+    [self.datePickerView setMaximumDate:[NSDate distantFuture]];
 }
 
 - (void)datePickerChanged:(KBDatePickerView *)dpv {
