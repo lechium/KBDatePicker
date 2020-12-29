@@ -64,6 +64,11 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     return [self cellForRowAtIndexPath:indexPath].textLabel.text;
 }
 
+- (NSString *)description {
+    NSString *sup = [super description];
+    return [NSString stringWithFormat:@"%@ : %@", sup, NSStringFromKBTableViewTag((KBTableViewTag)self.tag)];
+}
+
 - (void)setSelectedIndexPath:(NSIndexPath *)selectedIndexPath {
     _selectedIndexPath = selectedIndexPath;
     id value = [self valueForIndexPath:selectedIndexPath];
@@ -539,6 +544,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
            self.itemSelectedBlock(self.date);
        }
        [self sendActionsForControlEvents:UIControlEventValueChanged];
+    
 }
 
 - (void)selectMonthAtIndex:(NSInteger)index {
