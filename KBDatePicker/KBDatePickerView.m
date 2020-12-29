@@ -408,9 +408,9 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             [self scrollToValue:dayString inTableViewType:KBTableViewTagDays animated:animated];
         }
         NSInteger yearIndex = components.year-1;
-        DPLog(@"year index: %lu", yearIndex);
+        //DPLog(@"year index: %lu", yearIndex);
         NSString *yearString = [self kb_stringWithFormat:"%i",yearIndex];
-        DPLog(@"year index: %@", yearString);
+        //DPLog(@"year index: %@", yearString);
         if (![[_yearTable selectedValue] isEqualToString:yearString]){
             _yearSelected = yearIndex;
             [self scrollToValue:yearString inTableViewType:KBTableViewTagYears animated:animated];
@@ -510,7 +510,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         _currentDate = newDate;
     } else if (tableView == _amPMTable){
         BOOL previousState = _pmSelected;
-        DPLog(@"_hourSelected: %lu previousState: %d", _hourSelected, previousState);
+        //DPLog(@"_hourSelected: %lu previousState: %d", _hourSelected, previousState);
         if (indexPath.row == 0){
             _pmSelected = false;
             if(_hourSelected != 0){
@@ -555,9 +555,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 - (BOOL)tableView:(UITableView *)tableView canFocusRowAtIndexPath:(NSIndexPath *)indexPath {
     if (tableView.tag == KBTableViewTagDays){
         NSInteger normalized = (indexPath.row % self.dayData.count) + 1;
-        DPLog(@"can focus day %lu?", normalized);
         if (normalized > _currentMonthDayCount){
-            DPLog(@"Access denied");
             return false;
         }
     }
@@ -636,7 +634,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     if (!_yearTable.selectedValue && _yearSelected != 0){
         if (_minYear > 1){
             NSInteger yearDifference = _yearSelected - _minYear;
-            DPLog(@"year difference: %lu", yearDifference);
+            //DPLog(@"year difference: %lu", yearDifference);
             [self.yearTable scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:yearDifference inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:false];
         }
     }
@@ -782,7 +780,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
                 NSInteger intValue = [value integerValue];
                 foundIndex = intValue - _minYear;
             }
-            DPLog(@"foundIndex: %lu from value:%@", foundIndex, value);
+            //DPLog(@"foundIndex: %lu from value:%@", foundIndex, value);
             ip = [NSIndexPath indexPathForRow:foundIndex inSection:0];
             [self.yearTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
             [self delayedUpdateFocus];
@@ -933,7 +931,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self viewSetupForMode];
     
     if (!_tableViews){
-        DPLog(@"we aint got no table views, bail!!");
+        DPLog(@"no table views, bail!!");
         return;
     }
     
