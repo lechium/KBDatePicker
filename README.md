@@ -30,3 +30,4 @@ Listening for control events is the same as any other UIControl (same as UI*Pick
 ```
 
 ![FLEXing](FLEX.png "Example embedded in FLEX")
+![FLEXing Action](datePickerScience.gif "In Action")
