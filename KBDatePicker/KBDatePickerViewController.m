@@ -106,13 +106,8 @@
 
 - (void)datePickerChanged:(KBDatePickerView *)dpv {
     NSLog(@"[KBDatePicker] changed: %@", dpv.date);
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
-    [dateFormatter setDateFormat:@"E, MMM d, yyyy h:mm a"];
-
+    NSDateFormatter *dateFormatter = [KBDatePickerView sharedDateFormatter];
     NSString *strDate = [dateFormatter stringFromDate:dpv.date];
-    
     NSLog(@"strDate: %@", strDate); // Result: strDate: 2014/05/19 10:51:50
     self.datePickerLabel.text = strDate;
 }

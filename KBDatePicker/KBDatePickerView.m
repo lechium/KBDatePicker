@@ -130,6 +130,19 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     }
 }
 
++ (NSDateFormatter *)sharedDateFormatter {
+    static dispatch_once_t onceToken;
+    static NSDateFormatter *shared = nil;
+    if(shared == nil) {
+        dispatch_once(&onceToken, ^{
+            shared = [[NSDateFormatter alloc] init];
+            [shared setTimeZone:[NSTimeZone localTimeZone]];
+            [shared setDateFormat:@"E, MMM d, yyyy h:mm a"];
+        });
+    }
+    return shared;
+}
+
 
 - (NSDate *)date {
     if (!_currentDate){

@@ -15,6 +15,7 @@
 @property NSIndexPath * _Nullable selectedIndexPath;
 @property id _Nullable selectedValue;
 - (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
+- (NSArray *_Nonnull)visibleValues;
 @end
 
  // Enums are all defined like this to make it easier to convert them to / from string versions of themselves.
@@ -43,8 +44,8 @@ DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 @property KBDatePickerMode datePickerMode;
 @property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
 @property BOOL continuous; //whether or not the date is immediately updated as soon as items are scrolled
-+(id)todayInYear:(NSInteger)year;
-- (NSArray *)visibleValues;
++(id _Nonnull )todayInYear:(NSInteger)year;
++ (NSDateFormatter * _Nonnull )sharedDateFormatter;
 @end
 
 #define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
