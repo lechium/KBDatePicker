@@ -43,7 +43,6 @@ DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 @property (nullable, nonatomic, strong) NSDate *maximumDate;
 @property KBDatePickerMode datePickerMode;
 @property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
-@property BOOL continuous; //whether or not the date is immediately updated as soon as items are scrolled
 +(id _Nonnull )todayInYear:(NSInteger)year;
 + (NSDateFormatter * _Nonnull )sharedDateFormatter;
 @end

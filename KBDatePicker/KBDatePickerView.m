@@ -92,6 +92,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     NSInteger _daySelected;
     NSInteger _hourSelected;
     NSInteger _minuteSelected;
+    NSInteger _currentMonthDayCount; //current months
 }
 
 @property (nonatomic, strong) NSArray *hourData;
@@ -115,7 +116,6 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)menuGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded){
-        LOG_SELF;
         //[self setPreferredFocusedItem:self.toggleTypeButton]; //PRIVATE_API call, trying to avoid those to stay app store friendly!
         UIApplication *sharedApp = [UIApplication sharedApplication];
 #pragma clang diagnostic push
@@ -141,6 +141,12 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         });
     }
     return shared;
+}
+
+
+
+- (NSDateComponents *)currentComponents:(NSCalendarUnit)unitFlags {
+    return [[self calendar] components:unitFlags fromDate:self.date];
 }
 
 
@@ -189,7 +195,6 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (id)init {
     self = [super init];
-    _continuous = true;
     _pmSelected = false;
     if (![self date]){
         [self setDate:[NSDate date]];
@@ -391,7 +396,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     if (self.datePickerMode == KBDatePickerModeTime){
         [self loadTimeFromDateAnimated:animated];
     } else {
-        NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
+        NSDateComponents *components = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay];
         NSInteger monthIndex = components.month-1;
         NSString *monthSymbol = self.monthData[monthIndex];
         if (![self.monthTable.selectedValue isEqualToString:monthSymbol]){
@@ -439,10 +444,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)updateDetailsIfContinuous:(NSIndexPath *)indexPath inTable:(KBTableView *)tableView {
-    if (!self.continuous){
-        return;
-    }
-    NSDateComponents *components = [[self calendar] components:NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitYear | NSCalendarUnitHour | NSCalendarUnitMinute fromDate:self.date];
+    NSDateComponents *components = [self currentComponents:NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitYear | NSCalendarUnitHour | NSCalendarUnitMinute];
     NSArray *dataSource = nil;
     NSInteger normalizedIndex = NSNotFound;
     if (tableView == _monthTable){
@@ -519,7 +521,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)selectMonthAtIndex:(NSInteger)index {
-    NSDateComponents *comp = [[self calendar] components:NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitYear fromDate:self.date];
+    NSDateComponents *comp = [self currentComponents:NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitYear];
     NSInteger adjustedIndex = index;
     if (index > self.monthData.count){
         adjustedIndex = index % self.monthData.count;
@@ -527,6 +529,18 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     comp.month = adjustedIndex;
     [self setDate:[[self calendar] dateFromComponents:comp]];
     
+}
+
+- (BOOL)tableView:(UITableView *)tableView canFocusRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (tableView.tag == KBTableViewTagDays){
+        NSInteger normalized = (indexPath.row % self.dayData.count) + 1;
+        DPLog(@"can focus day %lu?", normalized);
+        if (normalized > _currentMonthDayCount){
+            DPLog(@"Access denied");
+            return false;
+        }
+    }
+    return true;
 }
 
 - (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
@@ -593,21 +607,16 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 
 - (void)populateDaysForCurrentMonth {
-    NSDateComponents *comp = [[self calendar] components:NSCalendarUnitMonth fromDate:self.date];
+    NSDateComponents *comp = [self currentComponents:NSCalendarUnitMonth];
     NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
     DPLog(@"month : %lu days %lu for: %@", comp.month, days.length, self.date);
-    self.dayData = [self createNumberArray:days.length zeroIndex:false leadingZero:false];
-    NSString *currentDay = [self kb_stringWithFormat:"%lu", _daySelected];
-    NSArray *visibleValues = [_dayTable visibleValues];
-    DPLog(@"_daySelected: %@ visible: %@", currentDay, visibleValues);
-    if (![visibleValues containsObject:currentDay]){
-        DPLog(@"##### BRUH");
-        [self scrollToValue:currentDay inTableViewType:KBTableViewTagDays animated:false];
+    _currentMonthDayCount = days.length; //this is used to push a date back if they've gone too far.
+    if (!self.dayData){ //only need to populate it once
+        self.dayData = [self createNumberArray:31 zeroIndex:false leadingZero:false];
     }
-//    if (_daySelected > 0 && (!_dayTable.selectedValue || ![_dayTable.selectedValue isEqualToString:currentDay])){
-//        DPLog(@"going to day: %@", currentDay);
-//        [self scrollToValue:currentDay inTableViewType:KBTableViewTagDays animated:false];
-//    }
+    NSString *currentDay = [self kb_stringWithFormat:"%lu", _daySelected];
+    DPLog(@"_daySelected: %@ _yearTable.selectedValue: %@", currentDay, _yearTable.selectedValue);
+    //[self scrollToValue:currentDay inTableViewType:KBTableViewTagDays animated:false];
     [self.dayTable reloadData];
 }
 
@@ -635,7 +644,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)loadTimeFromDateAnimated:(BOOL)animated {
     
-    NSDateComponents *components = [[self calendar] components:NSCalendarUnitHour | NSCalendarUnitMinute fromDate:self.date];
+    NSDateComponents *components = [self currentComponents:NSCalendarUnitHour | NSCalendarUnitMinute];
     NSInteger hour = components.hour;
     NSInteger minutes = components.minute;
     BOOL isPM = (hour >= 12);
@@ -813,77 +822,6 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    return;
-    NSDateComponents *components = [[self calendar] components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:self.date];
-    if (tableView == _monthTable){
-        
-        //NSString *s = [self.monthData objectAtIndex: indexPath.row % self.monthData.count];
-        NSInteger adjustedRow = indexPath.row % self.monthData.count;
-        NSInteger month = adjustedRow + 1;
-        components.month = month;
-        NSDate *newDate = nil;
-        NSInteger count = 0;
-        do {
-            DPLog(@"count: %lu", count);
-            newDate = [[self calendar] dateFromComponents:components];
-            components.day -= 1;
-            count++;
-        } while (newDate == nil || ([[self calendar] component:NSCalendarUnitMonth fromDate:newDate] != month));
-        [self setDate:newDate];
-        [self populateDaysForCurrentMonth];
-        //[[self dayTable] reloadData];
-        [[self yearTable] reloadData];
-    } else if (tableView == _dayTable){
-        NSInteger adjustedRow = indexPath.row % self.dayData.count;
-        components.day = adjustedRow + 1;
-        NSDate *newDate = [[self calendar] dateFromComponents:components];
-        if (newDate){
-            [self setDate:newDate];
-            [[self monthTable] reloadData];
-            [[self yearTable] reloadData];
-        }
-    } else if (tableView == _yearTable){
-        NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
-        components.year = year - 1 + indexPath.row;
-        NSDate *newDate = nil;
-        do {
-            newDate = [[self calendar] dateFromComponents:components];
-            components.day -= 1;
-        } while (newDate == nil || ([[self calendar] component:NSCalendarUnitMonth fromDate:newDate] != components.month));
-        [self setDate:newDate];
-        [[self monthTable] reloadData];
-        [[self yearTable] reloadData];
-    } else if (tableView == _hourTable){
-        
-        NSInteger minutes = [[self calendar] component:NSCalendarUnitMinute fromDate:self.date];
-        NSInteger hourSelected = [[self.hourData objectAtIndex: indexPath.row % self.hourData.count] integerValue];
-        if (_pmSelected){
-            hourSelected += 12;
-        }
-        components.hour = hourSelected;
-        components.minute = minutes;
-        NSDate *newDate = [[self calendar] dateFromComponents:components];
-        [self setDate:newDate];
-        //DPLog(@"hourSelected: %lu", hourSelected);
-    } else if (tableView == _minuteTable){
-        NSInteger hours = [[self calendar] component:NSCalendarUnitHour fromDate:self.date];
-        NSString *minuteSelected = [self.minutesData objectAtIndex: indexPath.row % self.minutesData.count];
-        components.minute = minuteSelected.integerValue;
-        components.hour = hours;
-        NSDate *newDate = [[self calendar] dateFromComponents:components];
-        [self setDate:newDate];
-        //DPLog(@"minuteSelected: %@", minuteSelected);
-    } else if (tableView == _amPMTable){
-        if (indexPath.row == 0){
-            //DPLog(@"AM SELECTED");
-            _pmSelected = false;
-        } else {
-            //DPLog(@"PM SELECTED");
-            _pmSelected = true;
-        }
-    }
-    
-    [self selectionOccured];
 }
 
 - (void)selectionOccured {
