@@ -450,8 +450,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     if (tableView == _monthTable){
         dataSource = self.monthData;
         normalizedIndex = indexPath.row % dataSource.count;
-        NSString *s = [dataSource objectAtIndex: normalizedIndex];
-        DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
+        //DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, [dataSource objectAtIndex: normalizedIndex]);
         components.month = normalizedIndex + 1;
         _monthSelected = components.month;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
@@ -459,8 +458,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     } else if (tableView == _dayTable){
         dataSource = self.dayData;
         normalizedIndex = indexPath.row % dataSource.count;
-        NSString *s = [dataSource objectAtIndex: normalizedIndex];
-        DPLog(@"_dayTable normalizedIndex: %lu s: %@", normalizedIndex, s);
+        //DPLog(@"_dayTable normalizedIndex: %lu s: %@", normalizedIndex, [dataSource objectAtIndex: normalizedIndex]);
         components.day = normalizedIndex + 1;
         _daySelected = components.day;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
@@ -468,8 +466,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     } else if (tableView == _minuteTable){
         dataSource = self.minutesData;
         normalizedIndex = indexPath.row % dataSource.count;
-        NSString *s = [dataSource objectAtIndex: normalizedIndex];
-        DPLog(@"_minuteTable normalizedIndex: %lu s: %@", normalizedIndex, s);
+        //DPLog(@"_minuteTable normalizedIndex: %lu s: %@", normalizedIndex, [dataSource objectAtIndex: normalizedIndex]);
         components.minute = normalizedIndex;
         _minuteSelected = components.minute;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
@@ -477,11 +474,17 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     } else if (tableView == _hourTable){
         dataSource = self.hourData;
         normalizedIndex = indexPath.row % dataSource.count;
-        NSString *s = [dataSource objectAtIndex: normalizedIndex];
+        //NSString *s = [dataSource objectAtIndex: normalizedIndex];
         if (_pmSelected){
-            normalizedIndex+=12;
+            if (normalizedIndex != 11){
+                normalizedIndex+=12;
+            }
+        } else {
+            if (normalizedIndex == 11){
+                normalizedIndex+=12;
+            }
         }
-        DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, s);
+        //DPLog(@"normalizedIndex: %lu s: %@", normalizedIndex, [dataSource objectAtIndex: normalizedIndex]);
         components.hour = normalizedIndex + 1;
         _hourSelected = components.hour;
         NSDate *newDate = [[self calendar] dateFromComponents:components];
@@ -490,13 +493,13 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         //NSInteger year = [[self calendar] component:NSCalendarUnitYear fromDate:self.date];
         NSInteger year = [_yearTable.selectedIndexPath row];
         NSInteger adjustment = 1;
-        DPLog(@"_minYear: %lu", _minYear);
+        //DPLog(@"_minYear: %lu", _minYear);
         if (_minYear > 1){
-            DPLog(@"adjust the year, we dont start at 1!");
+            //DPLog(@"adjust the year, we dont start at 1!");
             adjustment = 0;
             year = [_yearTable.selectedValue integerValue];
         }
-        DPLog(@"year: %lu", year);
+        //DPLog(@"year: %lu", year);
         components.year = year + adjustment;
         _yearSelected = components.year;
         NSDate *newDate = nil;
@@ -506,12 +509,30 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         } while (newDate == nil || ([[self calendar] component:NSCalendarUnitMonth fromDate:newDate] != components.month));
         _currentDate = newDate;
     } else if (tableView == _amPMTable){
+        BOOL previousState = _pmSelected;
+        DPLog(@"_hourSelected: %lu previousState: %d", _hourSelected, previousState);
         if (indexPath.row == 0){
-            DPLog(@"AM SELECTED");
             _pmSelected = false;
-        } else {
-            DPLog(@"PM SELECTED");
+            if(_hourSelected != 0){
+                if (previousState != _pmSelected){
+                    components.hour-=12;
+                    _hourSelected = components.hour;
+                    NSDate *date = [[self calendar] dateFromComponents:components];
+                    if (date){
+                        _currentDate = date;
+                    }
+                }
+            }
+        } else if(indexPath.row == 1) {
             _pmSelected = true;
+            if(_hourSelected != 0 && previousState != _pmSelected){
+                components.hour+=12;
+                _hourSelected = components.hour;
+                NSDate *date = [[self calendar] dateFromComponents:components];
+                if (date){
+                    _currentDate = date;
+                }
+            }
         }
     }
     if (self.itemSelectedBlock){
@@ -543,39 +564,57 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     return true;
 }
 
+- (void)toggleMidnight {
+    NSInteger index = 1;
+    if (_pmSelected){
+        index = 0;
+    }
+    [self.amPMTable selectRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0] animated:true scrollPosition:UITableViewScrollPositionTop];
+    _pmSelected = !_pmSelected;
+}
+
+- (void)toggleMidnightIfNecessaryWithPrevious:(NSInteger)previousRow next:(NSInteger)nextRow {
+    if (previousRow == 11 && nextRow == 12 && !_pmSelected){
+        [self toggleMidnight];
+    }
+    if (previousRow == 12 && nextRow == 1 && !_pmSelected){
+        [self toggleMidnight];
+    }
+}
+
+- (BOOL)contextBrothers:(UITableViewFocusUpdateContext *)context {
+    UIView *previousCell = context.previouslyFocusedView;
+    UIView *newCell = context.nextFocusedView;
+    return (previousCell.superview == newCell.superview);
+        
+}
+
 - (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
     [coordinator addCoordinatedAnimations:^{
         
-        NSIndexPath *ip = context.nextFocusedIndexPath;
+        NSIndexPath *nextIndexPath = context.nextFocusedIndexPath;
         KBTableView *table = (KBTableView *)tableView;
-        if ([table respondsToSelector:@selector(setSelectedIndexPath:)]){
-            if (ip != nil){
-                //DPLog(@"next ip: %lu table: %@", ip.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
-                [table setSelectedIndexPath:ip];
-                [self updateDetailsIfContinuous:ip inTable:table];
-                switch (tableView.tag) {
-                    case KBTableViewTagDays:
-                        
-                        break;
-                        
-                    case KBTableViewTagHours:
-                        
-                        break;
-                        
-                    case KBTableViewTagYears:
-                        
-                        break;
-                        
-                    case KBTableViewTagMonths:
-                        [self populateDaysForCurrentMonth];
-                        break;
-                        
-                    default:
-                        break;
+        if ([self contextBrothers:context]){
+            if (table.tag == KBTableViewTagHours){
+                NSIndexPath *previous = context.previouslyFocusedIndexPath;
+                NSInteger previousRow = (previous.row % self.hourData.count)+1;
+                NSInteger nextRow = (nextIndexPath.row % self.hourData.count)+1;
+                if ((previousRow == 11 && nextRow == 12) || (previousRow == 12 && nextRow == 11)){
+                    [self toggleMidnight];
                 }
             }
         }
-        [tableView selectRowAtIndexPath:ip animated:false scrollPosition:UITableViewScrollPositionTop];
+        if ([table respondsToSelector:@selector(setSelectedIndexPath:)]){
+            if (nextIndexPath != nil){
+                //DPLog(@"next ip: %lu table: %@", ip.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
+                [table setSelectedIndexPath:nextIndexPath];
+                [self updateDetailsIfContinuous:nextIndexPath inTable:table];
+                if (tableView.tag == KBTableViewTagMonths){
+                    [self populateDaysForCurrentMonth];
+                }
+            }
+        }
+        [tableView selectRowAtIndexPath:nextIndexPath animated:false scrollPosition:UITableViewScrollPositionTop];
         
     } completion:^{
         
@@ -590,14 +629,14 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     
     _minYear = self.minimumDate != nil ? [[self calendar] component:NSCalendarUnitYear fromDate:self.minimumDate] : 1;
     _maxYear = self.maximumDate != nil ? [[self calendar] component:NSCalendarUnitYear fromDate:self.maximumDate] : NUMBER_OF_CELLS;
-    DPLog(@"minYear: %lu", _minYear);
-    DPLog(@"maxYear: %lu", _maxYear);
-    DPLog(@"selectedValue: %@", _yearTable.selectedValue);
-    DPLog(@"currentYear: %lu", _yearSelected);
+    //DPLog(@"minYear: %lu", _minYear);
+    //DPLog(@"maxYear: %lu", _maxYear);
+    //DPLog(@"selectedValue: %@", _yearTable.selectedValue);
+    //DPLog(@"currentYear: %lu", _yearSelected);
     if (!_yearTable.selectedValue && _yearSelected != 0){
         if (_minYear > 1){
             NSInteger yearDifference = _yearSelected - _minYear;
-            DPLog(@"year Difference: %lu", yearDifference);
+            DPLog(@"year difference: %lu", yearDifference);
             [self.yearTable scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:yearDifference inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:false];
         }
     }
@@ -607,17 +646,18 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 
 - (void)populateDaysForCurrentMonth {
-    NSDateComponents *comp = [self currentComponents:NSCalendarUnitMonth];
+    //NSDateComponents *comp = [self currentComponents:NSCalendarUnitMonth];
     NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
-    DPLog(@"month : %lu days %lu for: %@", comp.month, days.length, self.date);
+    //DPLog(@"month : %lu days %lu for: %@", comp.month, days.length, self.date);
     _currentMonthDayCount = days.length; //this is used to push a date back if they've gone too far.
     if (!self.dayData){ //only need to populate it once
         self.dayData = [self createNumberArray:31 zeroIndex:false leadingZero:false];
+        [self.dayTable reloadData];
     }
-    NSString *currentDay = [self kb_stringWithFormat:"%lu", _daySelected];
-    DPLog(@"_daySelected: %@ _yearTable.selectedValue: %@", currentDay, _yearTable.selectedValue);
+    //NSString *currentDay = [self kb_stringWithFormat:"%lu", _daySelected];
+    //DPLog(@"_daySelected: %@ _yearTable.selectedValue: %@", currentDay, _yearTable.selectedValue);
     //[self scrollToValue:currentDay inTableViewType:KBTableViewTagDays animated:false];
-    [self.dayTable reloadData];
+
 }
 
 - (void)setupTimeData {
@@ -649,6 +689,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     NSInteger minutes = components.minute;
     BOOL isPM = (hour >= 12);
     if (isPM){
+        _pmSelected = true;
         hour = hour-12;
         NSIndexPath *amPMIndex = [NSIndexPath indexPathForRow:1 inSection:0];
         [self.amPMTable scrollToRowAtIndexPath:amPMIndex atScrollPosition:UITableViewScrollPositionTop animated:false];
@@ -686,6 +727,8 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
                 ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
                 //DPLog(@"found index: %lu", ip.row);
                 [self.hourTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+                [self.hourTable selectRowAtIndexPath:ip animated:animated scrollPosition:UITableViewScrollPositionTop];
+                [self delayedUpdateFocus];
             }
             break;
             
@@ -695,6 +738,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
                 ip = [NSIndexPath indexPathForRow:[self startIndexForMinutes]+foundIndex inSection:0];
                 //DPLog(@"found index: %lu", ip.row);
                 [self.minuteTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];
+                [self.minuteTable selectRowAtIndexPath:ip animated:animated scrollPosition:UITableViewScrollPositionTop];
                 [self delayedUpdateFocus];
             }
             break;
