@@ -2,24 +2,6 @@
 #import "Macros.h"
 #define NUMBER_OF_CELLS 100000
 
-@interface UIView (Helper)
--(void)removeAllSubviews;
-@end
-
-@interface UIStackView (Helper)
-- (void)removeAllArrangedSubviews;
-- (void)setArrangedViews:(NSArray * _Nonnull )views;
-@end
-
-@interface KBTableView: UITableView
-@property NSIndexPath * _Nullable selectedIndexPath;
-@property id _Nullable selectedValue;
-- (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
-- (NSArray *_Nonnull)visibleValues;
-@end
-
- // Enums are all defined like this to make it easier to convert them to / from string versions of themselves.
- 
 #define TABLE_TAG(XX) \
 XX(KBTableViewTagMonths, = 501) \
 XX(KBTableViewTagDays, )\
@@ -37,6 +19,25 @@ XX(KBDatePickerModeDateAndTime, ) \
 XX(KBDatePickerModeCountDownTimer, )
 DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 
+@interface UIView (Helper)
+-(void)removeAllSubviews;
+@end
+
+@interface UIStackView (Helper)
+- (void)removeAllArrangedSubviews;
+- (void)setArrangedViews:(NSArray * _Nonnull )views;
+@end
+
+@interface KBTableView: UITableView
+@property NSIndexPath * _Nullable selectedIndexPath;
+@property id _Nullable selectedValue;
+- (instancetype _Nonnull )initWithTag:(KBTableViewTag)tag delegate:(id _Nonnull )delegate;
+- (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
+- (NSArray *_Nonnull)visibleValues;
+@end
+
+ // Enums are all defined like this to make it easier to convert them to / from string versions of themselves.
+ 
 @interface KBDatePickerView: UIControl <UITableViewDelegate, UITableViewDataSource>
 @property (nonnull, nonatomic, strong) NSDate *date;
 @property (nullable, nonatomic, strong) NSDate *minimumDate;
