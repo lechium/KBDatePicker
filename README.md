@@ -3,16 +3,19 @@ UIDatePicker for tvOS! ported from https://github.com/jruhym/datePicker
 
 This is only loosely affiliated with the swift version it was ported from at this point. I tried to make it API compatible and achieve some kind of feature parity with the iOS counterpart.
 
-2 of the 4 date picker modes are supported:
+3 of the 4 date picker modes are supported:
 
 - KBDatePickerModeTime
-- KBDatePickerModeTime
+- KBDatePickerModeDate
+- KBDatePickerModeDateAndTime
 
 3 of the most important properties are supported
 
 - (NSDate *)date
-- (NSDate *)minimumDate
-- (NSDate *)maximumDate
+- (NSDate *)minimumDate *
+- (NSDate *)maximumDate *
+
+* minimum(maximum)Date aren't supported in KBDatePickerModeDateAndTime mode yet
 
 Listening for control events is the same as any other UIControl (same as UI*Picker* iOS counterparts)
 
