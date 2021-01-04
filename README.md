@@ -15,7 +15,7 @@ This is only loosely affiliated with the swift version it was ported from at thi
 - (NSDate *)minimumDate *
 - (NSDate *)maximumDate *
 
-* minimum(maximum)Date aren't supported in KBDatePickerModeDateAndTime mode yet
+***minimum(maximum)Date aren't supported in KBDatePickerModeDateAndTime mode yet***
 
 Listening for control events is the same as any other UIControl (same as UI*Picker* iOS counterparts)
 
