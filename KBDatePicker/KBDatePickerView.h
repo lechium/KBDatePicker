@@ -30,6 +30,7 @@ DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 @interface KBTableView: UITableView
 @property NSIndexPath * _Nullable selectedIndexPath;
+@property CGFloat customWidth;
 @property id _Nullable selectedValue;
 - (instancetype _Nonnull )initWithTag:(KBTableViewTag)tag delegate:(id _Nonnull )delegate;
 - (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
