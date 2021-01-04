@@ -37,10 +37,10 @@
 }
 
 - (void)toggleMode {
-    if (self.datePickerView.datePickerMode == KBDatePickerModeTime){
-        [self.datePickerView setDatePickerMode:KBDatePickerModeDate];
-    } else {
+    if (self.datePickerView.datePickerMode == KBDatePickerModeCountDownTimer){
         [self.datePickerView setDatePickerMode:KBDatePickerModeTime];
+    } else {
+        [self.datePickerView setDatePickerMode:self.datePickerView.datePickerMode+1];
     }
 }
 

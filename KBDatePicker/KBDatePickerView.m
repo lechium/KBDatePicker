@@ -47,6 +47,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 @end
 @implementation KBTableView //nothing to implement yet, just getting some properties
 
+
 - (instancetype)initWithTag:(KBTableViewTag)tag delegate:(id)delegate {
     self = [super initWithFrame:CGRectZero style:UITableViewStylePlain];
     if (self){
@@ -56,6 +57,16 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     }
     return self;
 }
+
+- (CGSize)intrinsicContentSize {
+    CGSize og = [super intrinsicContentSize];
+    if (self.customWidth > 0){
+        og.width = self.customWidth;
+        return og;
+    }
+    return og;
+}
+
 
 - (NSArray *)visibleValues {
     __block NSMutableArray *visibleValues = [NSMutableArray new];
@@ -274,10 +285,13 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     }
     
     [self setupTimeData];
-    self.stackDistribution = UIStackViewDistributionFillEqually;
+    self.stackDistribution = UIStackViewDistributionFillProportionally;
     self.hourTable = [[KBTableView alloc] initWithTag:KBTableViewTagHours delegate:self];
     self.minuteTable = [[KBTableView alloc] initWithTag:KBTableViewTagMinutes delegate:self];
     self.amPMTable = [[KBTableView alloc] initWithTag:KBTableViewTagAMPM delegate:self];
+    self.hourTable.customWidth = 80;
+    self.minuteTable.customWidth = 80;
+    self.amPMTable.customWidth = 70;
     self.amPMTable.contentInset = UIEdgeInsetsMake(0, 0, 40, 0);
     _tableViews = @[_hourTable, _minuteTable, _amPMTable];
 }
@@ -296,7 +310,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         self.dayTable = nil;
         _tableViews = nil;
     }
-    self.stackDistribution = UIStackViewDistributionFillEqually;
+    self.stackDistribution = UIStackViewDistributionFillProportionally;
     [self populateDaysForCurrentMonth];
     [self populateYearsForDateRange];
     self.monthLabel = [[UILabel alloc] init];
@@ -312,6 +326,9 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     self.monthTable = [[KBTableView alloc] initWithTag:KBTableViewTagMonths delegate:self];
     self.yearTable = [[KBTableView alloc] initWithTag:KBTableViewTagYears delegate:self];
     self.dayTable = [[KBTableView alloc] initWithTag:KBTableViewTagDays delegate:self];
+    self.monthTable.customWidth = 200;
+    self.dayTable.customWidth = 80;
+    self.yearTable.customWidth = 100;
     _tableViews = @[_monthTable, _dayTable, _yearTable];
     [self addSubview:self.monthLabel];
     [self addSubview:self.yearLabel];
@@ -360,10 +377,13 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     self.dateData = [self generateDatesForYear:2021]; //FIXME: un-hardcode it, this is just for testing
     [self setupTimeData];
     self.dateTable = [[KBTableView alloc] initWithTag:KBTaleViewWeekday delegate:self];
-    self.dateTable.customWidth = 80;
+    self.dateTable.customWidth = 200;
     self.hourTable = [[KBTableView alloc] initWithTag:KBTableViewTagHours delegate:self];
+    self.hourTable.customWidth = 80;
     self.minuteTable = [[KBTableView alloc] initWithTag:KBTableViewTagMinutes delegate:self];
+    self.minuteTable.customWidth = 80;
     self.amPMTable = [[KBTableView alloc] initWithTag:KBTableViewTagAMPM delegate:self];
+    self.amPMTable.customWidth = 70;
     self.amPMTable.contentInset = UIEdgeInsetsMake(0, 0, 40, 0);
     _tableViews = @[_dateTable, _hourTable, _minuteTable, _amPMTable];
     DPLog(@"_tableViews: %@", _tableViews);
@@ -435,6 +455,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             break;
     }
 }
+
 
 - (NSArray *)createNumberArray:(NSInteger)count zeroIndex:(BOOL)zeroIndex leadingZero:(BOOL)leadingZero {
     __block NSMutableArray *_newArray = [NSMutableArray new];
@@ -514,7 +535,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 +(id)todayInYear:(NSInteger)year {
-    NSDateComponents *dc = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitYear | NSCalendarUnitMonth fromDate:[NSDate date]];
+    NSDateComponents *dc = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitHour | NSCalendarUnitMinute fromDate:[NSDate date]];
     dc.year = year;
     return [[NSCalendar currentCalendar] dateFromComponents:dc];
 }
@@ -611,7 +632,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             }
         }
     } else if (tableView == _dateTable){
-        NSDateComponents *dc = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitDay];
+        NSDateComponents *dc = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute];
         dc.day = indexPath.row+1;
         _currentDate = [[NSCalendar currentCalendar] dateFromComponents:dc];
     }
@@ -1005,9 +1026,9 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (CGFloat)widthForMode {
     switch (self.datePickerMode) {
-        case KBDatePickerModeDate: return 720;
-        case KBDatePickerModeTime: return 500;
-        case KBDatePickerModeDateAndTime: return 800;
+        case KBDatePickerModeDate: return 500;
+        case KBDatePickerModeTime: return 350;
+        case KBDatePickerModeDateAndTime: return 650;
         case KBDatePickerModeCountDownTimer: return 400;
     }
     return 720;
