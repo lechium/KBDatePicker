@@ -33,9 +33,11 @@ Listening for control events is the same as any other UIControl (same as UI*Pick
     self.datePickerLabel.text = strDate;
 }
 ```
-
+## In Action
 ![FLEXing](FLEX.png "Example embedded in FLEX")
 ![FLEXing Action](datePickerScience.gif "In Action")
 ![Sample App](date_picker.gif "In Sample App")
 ![KBDatePickerModeTime](Examples/KBDatePickerModeTime.png "KBDatePickerModeTime")
-
+![KBDatePickerModeDate](Examples/KBDatePickerModeDate.png "KBDatePickerModeDate")
+![KBDatePickerModeDateAndTime](Examples/KBDatePickerModeDateAndTime.png "KBDatePickerModeDateAndTime")
+![KBDatePickerModeCountDownTimer](Examples/KBDatePickerModeCountDownTimer.png "KBDatePickerModeCountDownTimer")
