@@ -107,10 +107,16 @@
 
 - (void)datePickerChanged:(KBDatePickerView *)dpv {
     NSLog(@"[KBDatePicker] changed: %@", dpv.date);
-    NSDateFormatter *dateFormatter = [KBDatePickerView sharedDateFormatter];
-    NSString *strDate = [dateFormatter stringFromDate:dpv.date];
-    NSLog(@"strDate: %@", strDate); // Result: strDate: 2014/05/19 10:51:50
-    self.datePickerLabel.text = strDate;
+    if (self.datePickerView.datePickerMode == KBDatePickerModeCountDownTimer){
+        NSString *time = [NSString stringWithFormat:@"countdown duration: %.0f seconds", dpv.countDownDuration];
+        self.datePickerLabel.text = time;
+    } else {
+        NSDateFormatter *dateFormatter = [KBDatePickerView sharedDateFormatter];
+        NSString *strDate = [dateFormatter stringFromDate:dpv.date];
+        NSLog(@"strDate: %@", strDate); // Result: strDate: 2014/05/19 10:51:50
+        self.datePickerLabel.text = strDate;
+    }
+    
 }
 
 @end
