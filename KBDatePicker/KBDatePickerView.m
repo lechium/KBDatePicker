@@ -136,6 +136,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 @property UILabel *monthLabel;
 @property UILabel *dayLabel;
 @property UILabel *yearLabel;
+@property UILabel *datePickerLabel;
 @property NSLayoutConstraint *widthConstraint;
 @property UILabel *unsupportedLabel;
 
@@ -147,18 +148,27 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)menuGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded){
-        //[self setPreferredFocusedItem:self.toggleTypeButton]; //PRIVATE_API call, trying to avoid those to stay app store friendly!
-        UIApplication *sharedApp = [UIApplication sharedApplication];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        UIWindow *window = [sharedApp keyWindow];
-#pragma clang diagnostic pop
-        UIViewController *rootViewController = [window rootViewController];
-        if (rootViewController.view == self.superview){
+       id superview = [self superview];
+        if ([superview respondsToSelector:@selector(delegate)]){
+            UIViewController *vc = [superview delegate];
+            DPLog(@"delegateView: %@", vc);
+            [vc setNeedsFocusUpdate];
+            [vc updateFocusIfNeeded];
+        } else {
+            //[self setPreferredFocusedItem:self.toggleTypeButton]; //PRIVATE_API call, trying to avoid those to stay app store friendly!
+            UIApplication *sharedApp = [UIApplication sharedApplication];
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            UIWindow *window = [sharedApp keyWindow];
+            #pragma clang diagnostic pop
+            UIViewController *rootViewController = [window rootViewController];
+            if (rootViewController.view == self.superview){
             [rootViewController setNeedsFocusUpdate];
             [rootViewController updateFocusIfNeeded];
+            }
         }
     }
+    
 }
 
 + (NSDateFormatter *)sharedMinimumDateFormatter {
@@ -259,6 +269,8 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 - (id)init {
     self = [super init];
     _pmSelected = false;
+    _showDateLabel = false;
+    _topOffset = 20;
     if (![self date]){
         [self setDate:[NSDate date]];
     }
@@ -299,12 +311,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 - (void)layoutForDate {
     
     if (self.monthLabel){
-        [self.monthLabel removeFromSuperview];
-        self.monthLabel = nil;
-        [self.yearLabel removeFromSuperview];
-        self.yearLabel = nil;
-        [self.dayLabel removeFromSuperview];
-        self.dayLabel = nil;
+        [self removeDateHeaders];
         self.monthTable = nil;
         self.yearTable = nil;
         self.dayTable = nil;
@@ -328,7 +335,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     self.dayTable = [[KBTableView alloc] initWithTag:KBTableViewTagDays delegate:self];
     self.monthTable.customWidth = 200;
     self.dayTable.customWidth = 80;
-    self.yearTable.customWidth = 100;
+    self.yearTable.customWidth = 150;
     _tableViews = @[_monthTable, _dayTable, _yearTable];
     [self addSubview:self.monthLabel];
     [self addSubview:self.yearLabel];
@@ -336,13 +343,13 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)layoutLabelsForDate {
-    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
-    [self.dayLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
+    [self.dayLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
     [self.dayLabel.centerXAnchor constraintEqualToAnchor:self.dayTable.centerXAnchor].active = true;
     [self.monthLabel.centerXAnchor constraintEqualToAnchor:self.monthTable.centerXAnchor].active = true;
     [self.yearLabel.centerXAnchor constraintEqualToAnchor:self.yearTable.centerXAnchor].active = true;
-    [self.yearLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
-    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:20].active = true;
+    [self.yearLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
+    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
 }
 
 - (void)layoutUnsupportedView {
@@ -396,11 +403,21 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self layoutUnsupportedView];
 }
 
+- (void)removeDateHeaders {
+    [self.dayLabel removeFromSuperview];
+    self.dayLabel = nil;
+    [self.monthLabel removeFromSuperview];
+    self.monthLabel = nil;
+    [self.yearLabel removeFromSuperview];
+    self.yearLabel = nil;
+}
+
 - (void)layoutLabelsForTime {
-    
+    [self removeDateHeaders];
 }
 
 - (void)layoutLabelsForDateAndTime {
+    [self removeDateHeaders];
     
 }
 
@@ -636,10 +653,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         dc.day = indexPath.row+1;
         _currentDate = [[NSCalendar currentCalendar] dateFromComponents:dc];
     }
-    if (self.itemSelectedBlock){
-           self.itemSelectedBlock(self.date);
-       }
-       [self sendActionsForControlEvents:UIControlEventValueChanged];
+    [self selectionOccured];
     
 }
 
@@ -979,6 +993,15 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         self.itemSelectedBlock(self.date);
     }
     [self sendActionsForControlEvents:UIControlEventValueChanged];
+    if (self.showDateLabel){
+        self.datePickerLabel.hidden = false;
+        NSDateFormatter *dateFormatter = [KBDatePickerView sharedDateFormatter];
+        NSString *strDate = [dateFormatter stringFromDate:self.date];
+        DPLog(@"strDate: %@", strDate); // Result: strDate: 2014/05/19 10:51:50
+        self.datePickerLabel.text = strDate;
+    } else {
+        self.datePickerLabel.hidden = true;
+    }
 }
 
 - (id)valueForTableViewSelectedCell:(KBTableView *)tableView {
@@ -1062,10 +1085,21 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self addSubview:self.datePickerStackView];
     
     [self.datePickerStackView.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
-    [self.datePickerStackView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
-    //[self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
-    
+
+    self.datePickerLabel = [[UILabel alloc] init];
+    self.datePickerLabel.translatesAutoresizingMaskIntoConstraints = false;
+    self.datePickerLabel.hidden = !_showDateLabel;
+    [self addSubview:self.datePickerLabel];
+    [self.datePickerLabel.centerXAnchor constraintEqualToAnchor:self.centerXAnchor].active = true;
+    [self.datePickerLabel.topAnchor constraintEqualToAnchor:self.datePickerStackView.bottomAnchor constant:80].active = true;
     [self setupLabelsForMode];
+    if (self.dayLabel){
+        DPLog(@"day label in mode: %@", NSStringFromKBDatePickerMode(self.datePickerMode));
+        [self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
+    } else {
+        DPLog(@"no day label in mode: %@", NSStringFromKBDatePickerMode(self.datePickerMode));
+        [self.datePickerStackView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
+    }
     [self scrollToCurrentDateAnimated:false];
     
     

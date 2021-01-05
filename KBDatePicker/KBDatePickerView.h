@@ -43,7 +43,9 @@ DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 @property (nonnull, nonatomic, strong) NSDate *date;
 @property (nullable, nonatomic, strong) NSDate *minimumDate;
 @property (nullable, nonatomic, strong) NSDate *maximumDate;
+@property BOOL showDateLabel;
 @property KBDatePickerMode datePickerMode;
+@property NSInteger topOffset;
 @property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
 +(id _Nonnull )todayInYear:(NSInteger)year;
 + (NSDateFormatter * _Nonnull )sharedDateFormatter;
