@@ -34,9 +34,13 @@ Listening for control events is the same as any other UIControl (same as UI*Pick
 }
 ```
 ## In Action
-![FLEXing](FLEX.png "Example embedded in FLEX")
+
 ![FLEXing Action](datePickerScience.gif "In Action")
 ![Sample App](date_picker.gif "In Sample App")
+
+## Screenshots
+
+![FLEXing](FLEX.png "Example embedded in FLEX")
 ![KBDatePickerModeTime](Examples/KBDatePickerModeTime.png "KBDatePickerModeTime")
 ![KBDatePickerModeDate](Examples/KBDatePickerModeDate.png "KBDatePickerModeDate")
 ![KBDatePickerModeDateAndTime](Examples/KBDatePickerModeDateAndTime.png "KBDatePickerModeDateAndTime")
