@@ -114,6 +114,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     NSCalendar *_calendar;
     NSTimeZone *_timeZone;
     NSLocale *_locale;
+    NSTimeInterval _countDownDuration;
     
 }
 
@@ -273,6 +274,15 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     return [NSLocale currentLocale];
 }
 
+- (void)setCountDownDuration:(NSTimeInterval)countDownDuration {
+    _countDownDuration = countDownDuration;
+    [self scrollToCurrentDateAnimated:true];
+}
+
+- (NSTimeInterval)countDownDuration {
+    return _countDownDuration;
+}
+
 - (void)setDate:(NSDate *)date animated:(BOOL)animated {
     _currentDate = date;
     [self scrollToCurrentDateAnimated:animated];
@@ -330,6 +340,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     _countDownHourSelected = 0;
     _countDownMinuteSelected = 0;
     _countDownSecondSelected = 0;
+    _countDownDuration = 0;
     if (![self date]){
         [self setDate:[NSDate date]];
     }
@@ -634,6 +645,20 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     
     if (self.datePickerMode == KBDatePickerModeTime){
         [self loadTimeFromDateAnimated:animated];
+    } else if (self.datePickerMode == KBDatePickerModeCountDownTimer) {
+        _countDownHourSelected = (int)self.countDownDuration / 3600;
+        _countDownMinuteSelected = (int)self.countDownDuration / 60 % 60;
+        _countDownSecondSelected = (int)self.countDownDuration % 60;
+        NSIndexPath *hourIP = [NSIndexPath indexPathForRow:_countDownHourSelected inSection:0];
+        NSIndexPath *minIP = [NSIndexPath indexPathForRow:_countDownMinuteSelected inSection:0];
+        NSIndexPath *secIP = [NSIndexPath indexPathForRow:_countDownSecondSelected inSection:0];
+        [self.countDownHourTable scrollToRowAtIndexPath:hourIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
+        [self.countDownHourTable selectRowAtIndexPath:hourIP animated:animated scrollPosition:UITableViewScrollPositionTop];
+        [self.countDownMinuteTable scrollToRowAtIndexPath:minIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
+        [self.countDownMinuteTable selectRowAtIndexPath:minIP animated:animated scrollPosition:UITableViewScrollPositionTop];
+        [self.countDownSecondsTable scrollToRowAtIndexPath:secIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
+        [self.countDownSecondsTable selectRowAtIndexPath:secIP animated:animated scrollPosition:UITableViewScrollPositionTop];
+        [self delayedUpdateFocus];
     } else if (self.datePickerMode == KBDatePickerModeDate){
         NSDateComponents *components = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay];
         NSInteger monthIndex = components.month-1;
