@@ -64,6 +64,8 @@ Adding the control & listening for control events is the same as any other UICon
 
 ```
 
+There are both Objective-C and Swift sample apps included in this project. Please refer to them if this sample code isnt sufficient!
+
 ## Troubleshooting
 
 Sometimes you may have trouble directing the focus engine on and off of KBDatePicker, if this happens, i recommend creating focus guides similar to the ones created in the sample project. This sample below is assuming theres a toggle button like the one in the sample app and isnt code that will run on its own without substituting in the view you want the focus engine to redirect to.
@@ -88,12 +90,15 @@ Sometimes you may have trouble directing the focus engine on and off of KBDatePi
 
 ```
 
-## Road Map, Plans, Feature Requests, etc
+## Road Map / Plans 
 
 - Plan on adding localization support at some point for the text labels that are created for some of the view modes
 - Create a CocoaPod & Cartfile (or whatever carthage uses)
-- Add swift code examples (***no I have no plans to EVER re-write this in Swift or SwiftUI, please don't ask, it will NEVER happen***)
 - Support min/max date in KBDatePickerModeDateAndTime
+
+## Feature Requests
+
+Feel free to request features if you think i've overlooked anything! The only thing that is not an option is a Swift or SwiftUI re-write, I will never even CONSIDER that, so please don't ask! Thank you.
 
 ## In Action
 
