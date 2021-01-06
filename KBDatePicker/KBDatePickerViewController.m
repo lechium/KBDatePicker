@@ -8,11 +8,6 @@
 
 #import "KBDatePickerViewController.h"
 #import "KBDatePickerView.h"
-/*
-@interface UIViewController (priv)
-@property(nonatomic) id  preferredFocusedItem;
-@end
-*/
 @interface KBDatePickerViewController() {
     
 }
@@ -33,24 +28,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    //[self scrollToCurrentDateAnimated:true];
-}
-
-- (void)toggleMode {
-    if (self.datePickerView.datePickerMode == KBDatePickerModeCountDownTimer){
-        [self.datePickerView setDatePickerMode:KBDatePickerModeTime];
-    } else {
-        [self.datePickerView setDatePickerMode:self.datePickerView.datePickerMode+1];
-    }
-}
-
-- (void)menuGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer {
-    if (gestureRecognizer.state == UIGestureRecognizerStateEnded){
-        LOG_SELF;
-        //[self setPreferredFocusedItem:self.toggleTypeButton];
-        [self setNeedsFocusUpdate];
-        [self updateFocusIfNeeded];
-    }
 }
 
 - (void)viewDidLoad {
@@ -97,6 +74,16 @@
     
     [self.datePickerView setMinimumDate:[NSDate distantPast]];
     [self.datePickerView setMaximumDate:[NSDate distantFuture]];
+    [self.datePickerView setDatePickerMode:KBDatePickerModeCountDownTimer];
+    [self.datePickerView setCountDownDuration:4205];
+}
+
+- (void)toggleMode {
+    if (self.datePickerView.datePickerMode == KBDatePickerModeCountDownTimer){
+        [self.datePickerView setDatePickerMode:KBDatePickerModeTime];
+    } else {
+        [self.datePickerView setDatePickerMode:self.datePickerView.datePickerMode+1];
+    }
 }
 
 - (void)datePickerChanged:(KBDatePickerView *)dpv {
