@@ -911,7 +911,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
     [coordinator addCoordinatedAnimations:^{
-        LOG_SELF;
+        //LOG_SELF;
         NSIndexPath *nextIndexPath = context.nextFocusedIndexPath;
         KBTableView *table = (KBTableView *)tableView;
         if ([self contextBrothers:context]){
@@ -926,7 +926,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         }
         if ([table respondsToSelector:@selector(setSelectedIndexPath:)]){
             if (nextIndexPath != nil){
-                DPLog(@"next ip: %lu table: %@", nextIndexPath.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
+                //DPLog(@"next ip: %lu table: %@", nextIndexPath.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
                 [table setSelectedIndexPath:nextIndexPath];
                 if (self.datePickerMode == KBDatePickerModeCountDownTimer){
                     [self updateDetailsForCountdownTable:table currentCell:(UITableViewCell*)context.nextFocusedView];
@@ -1224,6 +1224,10 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 - (void)adaptModeChange {
     [self removeAllSubviews];
     [self layoutViews];
+    if (self.datePickerMode != KBDatePickerModeCountDownTimer){
+        //reset duration
+        _countDownDuration = 0;
+    }
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {

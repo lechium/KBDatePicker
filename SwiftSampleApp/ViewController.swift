@@ -29,6 +29,7 @@ class ViewController: UIViewController {
         toggleButton.addTarget(self, action: #selector(toggleMode), for: .primaryActionTriggered)
         
         datePickerView.datePickerMode = KBDatePickerModeCountDownTimer
+        datePickerView.countDownDuration = 4100
     }
    
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
