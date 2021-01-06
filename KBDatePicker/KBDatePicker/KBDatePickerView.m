@@ -111,6 +111,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     NSInteger _countDownMinuteSelected;
     NSInteger _countDownHourSelected;
     
+    BOOL _showDateLabel;
     NSCalendar *_calendar;
     NSTimeZone *_timeZone;
     NSLocale *_locale;
@@ -330,6 +331,15 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (BOOL)isEnabled {
     return FALSE;
+}
+
+- (BOOL)showDateLabel {
+    return _showDateLabel;
+}
+
+- (void)setShowDateLabel:(BOOL)showDateLabel {
+    _showDateLabel = showDateLabel;
+    self.datePickerLabel.hidden = !showDateLabel;
 }
 
 - (id)init {
@@ -878,7 +888,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     }
     self.countDownDuration = _countDownSecondSelected + (_countDownMinuteSelected*60) + (_countDownHourSelected * 3600);
     //DPLog(@"countDownDuration: %f", self.countDownDuration);
-    [self sendActionsForControlEvents:UIControlEventValueChanged];
+    [self selectionOccured];
 }
 
 - (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
@@ -1171,10 +1181,14 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self sendActionsForControlEvents:UIControlEventValueChanged];
     if (self.showDateLabel){
         self.datePickerLabel.hidden = false;
-        NSDateFormatter *dateFormatter = [KBDatePickerView sharedDateFormatter];
-        NSString *strDate = [dateFormatter stringFromDate:self.date];
-        //DPLog(@"strDate: %@", strDate); // Result: strDate: 2014/05/19 10:51:50
-        self.datePickerLabel.text = strDate;
+        NSString *details = nil;
+        if (self.datePickerMode == KBDatePickerModeCountDownTimer){
+            details = [NSString stringWithFormat:@"countdown duration: %.0f seconds", self.countDownDuration];
+        } else {
+            NSDateFormatter *dateFormatter = [KBDatePickerView sharedDateFormatter];
+            details = [dateFormatter stringFromDate:self.date];
+        }
+        self.datePickerLabel.text = details;
     } else {
         self.datePickerLabel.hidden = true;
     }

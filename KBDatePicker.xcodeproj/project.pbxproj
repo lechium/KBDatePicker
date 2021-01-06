@@ -61,11 +61,9 @@
 		325D7B1E25979B7B00CC6B10 /* KBDatePicker */ = {
 			isa = PBXGroup;
 			children = (
-				323F6BC22599CD060055BDD6 /* Macros.h */,
+				32C7DE2025A566FB00FDB324 /* KBDatePicker */,
 				325D7B1F25979B7B00CC6B10 /* AppDelegate.h */,
 				325D7B2025979B7B00CC6B10 /* AppDelegate.m */,
-				325D7B392597B97200CC6B10 /* KBDatePickerView.h */,
-				325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */,
 				325D7B2225979B7B00CC6B10 /* KBDatePickerViewController.h */,
 				325D7B2325979B7B00CC6B10 /* KBDatePickerViewController.m */,
 				325D7B2825979B7C00CC6B10 /* Assets.xcassets */,
@@ -73,6 +71,16 @@
 				325D7B2D25979B7C00CC6B10 /* Info.plist */,
 				325D7B2E25979B7C00CC6B10 /* main.m */,
 				325D7B412597F35000CC6B10 /* postscript.sh */,
+			);
+			path = KBDatePicker;
+			sourceTree = "<group>";
+		};
+		32C7DE2025A566FB00FDB324 /* KBDatePicker */ = {
+			isa = PBXGroup;
+			children = (
+				323F6BC22599CD060055BDD6 /* Macros.h */,
+				325D7B392597B97200CC6B10 /* KBDatePickerView.h */,
+				325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */,
 			);
 			path = KBDatePicker;
 			sourceTree = "<group>";
