@@ -74,8 +74,11 @@
     
     [self.datePickerView setMinimumDate:[NSDate distantPast]];
     [self.datePickerView setMaximumDate:[NSDate distantFuture]];
-    [self.datePickerView setDatePickerMode:KBDatePickerModeCountDownTimer];
-    [self.datePickerView setCountDownDuration:4205];
+    
+    //example of doing a count down timer instead
+    
+    //[self.datePickerView setDatePickerMode:KBDatePickerModeCountDownTimer];
+    //[self.datePickerView setCountDownDuration:4205];
 }
 
 - (void)toggleMode {
