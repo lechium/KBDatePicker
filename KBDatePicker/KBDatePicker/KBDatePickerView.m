@@ -276,6 +276,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)setCountDownDuration:(NSTimeInterval)countDownDuration {
+    //LOG_SELF;
     _countDownDuration = countDownDuration;
     [self scrollToCurrentDateAnimated:true];
 }
@@ -520,7 +521,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         [self.countDownSecondsTable removeFromSuperview];
         self.countDownSecondsTable = nil;
     }
-    
+    self.stackDistribution = UIStackViewDistributionFillProportionally;
     self.countDownMinuteTable = [[KBTableView alloc] initWithTag:KBTableViewTagCDMinutes delegate:self];
     self.countDownMinuteTable.customWidth = 200;
     self.countDownHourTable = [[KBTableView alloc] initWithTag:KBTableViewTagCDHours delegate:self];
@@ -545,6 +546,14 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self addSubview:self.secLabel];
     
     _tableViews = @[_countDownHourTable, _countDownMinuteTable, _countDownSecondsTable];
+    if (self.countDownDuration == 0){
+        
+        NSIndexPath *zero = [NSIndexPath indexPathForRow:0 inSection:0];
+        self.countDownMinuteTable.selectedIndexPath = zero;
+        self.countDownHourTable.selectedIndexPath = zero;
+        self.countDownSecondsTable.selectedIndexPath = zero;
+         
+    }
 }
 
 - (void)removeCountDownLabels {
@@ -662,13 +671,22 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         NSIndexPath *hourIP = [NSIndexPath indexPathForRow:_countDownHourSelected inSection:0];
         NSIndexPath *minIP = [NSIndexPath indexPathForRow:_countDownMinuteSelected inSection:0];
         NSIndexPath *secIP = [NSIndexPath indexPathForRow:_countDownSecondSelected inSection:0];
-        [self.countDownHourTable scrollToRowAtIndexPath:hourIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
-        [self.countDownHourTable selectRowAtIndexPath:hourIP animated:animated scrollPosition:UITableViewScrollPositionTop];
-        [self.countDownMinuteTable scrollToRowAtIndexPath:minIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
-        [self.countDownMinuteTable selectRowAtIndexPath:minIP animated:animated scrollPosition:UITableViewScrollPositionTop];
-        [self.countDownSecondsTable scrollToRowAtIndexPath:secIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
-        [self.countDownSecondsTable selectRowAtIndexPath:secIP animated:animated scrollPosition:UITableViewScrollPositionTop];
-        [self delayedUpdateFocus];
+        //DPLog(@"countDownHourTable sip: %@", self.countDownHourTable.selectedIndexPath);
+        //DPLog(@"countDownMinuteTable sip: %@", self.countDownMinuteTable.selectedIndexPath);
+        //DPLog(@"countDownSecondsTable sip: %@", self.countDownSecondsTable.selectedIndexPath);
+        if (self.countDownHourTable.selectedIndexPath != nil && self.countDownHourTable.selectedIndexPath != hourIP){
+            [self.countDownHourTable scrollToRowAtIndexPath:hourIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
+            [self.countDownHourTable selectRowAtIndexPath:hourIP animated:animated scrollPosition:UITableViewScrollPositionTop];
+        }
+        if (self.countDownMinuteTable.selectedIndexPath != nil && self.countDownMinuteTable.selectedIndexPath != minIP){
+            [self.countDownMinuteTable scrollToRowAtIndexPath:minIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
+            [self.countDownMinuteTable selectRowAtIndexPath:minIP animated:animated scrollPosition:UITableViewScrollPositionTop];
+        }
+        if (self.countDownSecondsTable.selectedIndexPath != nil && self.countDownSecondsTable.selectedIndexPath != secIP){
+            [self.countDownSecondsTable scrollToRowAtIndexPath:secIP atScrollPosition:UITableViewScrollPositionTop animated:animated];
+            [self.countDownSecondsTable selectRowAtIndexPath:secIP animated:animated scrollPosition:UITableViewScrollPositionTop];
+        }
+        //[self delayedUpdateFocus];
     } else if (self.datePickerMode == KBDatePickerModeDate){
         NSDateComponents *components = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay];
         NSInteger monthIndex = components.month-1;
@@ -893,7 +911,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 - (void)tableView:(UITableView *)tableView didUpdateFocusInContext:(UITableViewFocusUpdateContext *)context withAnimationCoordinator:(UIFocusAnimationCoordinator *)coordinator {
     [coordinator addCoordinatedAnimations:^{
-        
+        LOG_SELF;
         NSIndexPath *nextIndexPath = context.nextFocusedIndexPath;
         KBTableView *table = (KBTableView *)tableView;
         if ([self contextBrothers:context]){
@@ -908,7 +926,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         }
         if ([table respondsToSelector:@selector(setSelectedIndexPath:)]){
             if (nextIndexPath != nil){
-                //DPLog(@"next ip: %lu table: %@", ip.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
+                DPLog(@"next ip: %lu table: %@", nextIndexPath.row, NSStringFromKBTableViewTag((KBTableViewTag)tableView.tag));
                 [table setSelectedIndexPath:nextIndexPath];
                 if (self.datePickerMode == KBDatePickerModeCountDownTimer){
                     [self updateDetailsForCountdownTable:table currentCell:(UITableViewCell*)context.nextFocusedView];

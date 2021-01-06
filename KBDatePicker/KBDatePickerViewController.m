@@ -77,8 +77,8 @@
     
     //example of doing a count down timer instead
     
-    //[self.datePickerView setDatePickerMode:KBDatePickerModeCountDownTimer];
-    //[self.datePickerView setCountDownDuration:4205];
+    [self.datePickerView setDatePickerMode:KBDatePickerModeCountDownTimer];
+    [self.datePickerView setCountDownDuration:4205];
 }
 
 - (void)toggleMode {
