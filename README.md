@@ -88,7 +88,12 @@ Sometimes you may have trouble directing the focus engine on and off of KBDatePi
 
 ```
 
+## Road Map, Plans, Feature Requests, etc
 
+- Plan on adding localization support at some point for the text labels that are created for some of the view modes
+- Create a CocoaPod & Cartfile (or whatever carthage uses)
+- Add swift code examples (***no I have no plans to EVER re-write this in Swift or SwiftUI, please don't ask, it will NEVER happen***)
+- Support min/max date in KBDatePickerModeDateAndTime
 
 ## In Action
 
