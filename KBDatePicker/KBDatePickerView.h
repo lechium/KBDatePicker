@@ -2,6 +2,7 @@
 #import "Macros.h"
 #define NUMBER_OF_CELLS 100000
 
+ // Enums are all defined like this to make it easier to convert them to / from string versions of themselves.
 #define TABLE_TAG(XX) \
 XX(KBTableViewTagMonths, = 501) \
 XX(KBTableViewTagDays, )\
@@ -37,10 +38,7 @@ DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 @property id _Nullable selectedValue;
 - (instancetype _Nonnull )initWithTag:(KBTableViewTag)tag delegate:(id _Nonnull )delegate;
 - (id _Nullable )valueForIndexPath:(NSIndexPath *_Nonnull)indexPath;
-- (NSArray *_Nonnull)visibleValues;
 @end
-
- // Enums are all defined like this to make it easier to convert them to / from string versions of themselves.
  
 @interface KBDatePickerView: UIControl <UITableViewDelegate, UITableViewDataSource>
 
@@ -59,7 +57,6 @@ DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 @property BOOL showDateLabel;
 @property KBDatePickerMode datePickerMode;
 @property NSInteger topOffset;
-@property (nonatomic, copy, nullable) void (^itemSelectedBlock)(NSDate * _Nullable date);
 +(id _Nonnull )todayInYear:(NSInteger)year;
 + (NSDateFormatter * _Nonnull )sharedDateFormatter;
 @end

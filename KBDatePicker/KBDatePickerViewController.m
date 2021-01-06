@@ -65,14 +65,8 @@
     [self.datePickerLabel.bottomAnchor constraintEqualToAnchor:self.datePickerView.topAnchor constant:-80].active = true;
     [self.datePickerView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor].active = true;
     [self.datePickerView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
-    [self.datePickerView.widthAnchor constraintEqualToConstant:720].active = true;
-    [self.datePickerView.heightAnchor constraintEqualToConstant:128+81+60+40].active = true;
-    //__weak typeof(self) weakSelf = self;
-    //self.datePickerView.itemSelectedBlock = ^(NSDate * _Nullable date) {
-        //NSLog(@"[KBDatePicker] date selected: %@", date);
-        //weakSelf.datePickerLabel.text = date.description;
-    //};
-    
+    //[self.datePickerView.widthAnchor constraintEqualToConstant:720].active = true;
+
     self.toggleTypeButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.toggleTypeButton.translatesAutoresizingMaskIntoConstraints = false;
     [self.view addSubview:self.toggleTypeButton];
@@ -101,7 +95,7 @@
     [focusGuideRight.widthAnchor constraintEqualToConstant:40].active = true;
     focusGuideRight.preferredFocusEnvironments = @[self.toggleTypeButton];
     
-    [self.datePickerView setMinimumDate:[KBDatePickerView todayInYear:2000]];
+    [self.datePickerView setMinimumDate:[NSDate distantPast]];
     [self.datePickerView setMaximumDate:[NSDate distantFuture]];
 }
 
