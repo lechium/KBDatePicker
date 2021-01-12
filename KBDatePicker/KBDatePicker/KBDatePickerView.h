@@ -56,8 +56,10 @@ DECLARE_ENUM(KBDatePickerMode, PICKER_MODE)
 @property BOOL showDateLabel;
 @property KBDatePickerMode datePickerMode;
 @property NSInteger topOffset;
+@property BOOL hybridLayout; //if set to hybrid, we allow manual layout for the width of our view
 +(id _Nonnull )todayInYear:(NSInteger)year;
-+ (NSDateFormatter * _Nonnull )sharedDateFormatter;
++(NSDateFormatter * _Nonnull )sharedDateFormatter;
+-(instancetype _Nonnull )initWithHybridLayout:(BOOL)hybrid;
 @end
 
 #define DLog(format, ...) CFShow((__bridge CFStringRef)[NSString stringWithFormat:format, ## __VA_ARGS__]);
