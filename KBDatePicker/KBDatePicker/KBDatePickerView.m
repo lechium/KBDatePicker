@@ -45,8 +45,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     NSIndexPath *_selectedIndexPath;
 }
 @end
-@implementation KBTableView //nothing to implement yet, just getting some properties
-
+@implementation KBTableView
 
 - (instancetype)initWithTag:(KBTableViewTag)tag delegate:(id)delegate {
     self = [super initWithFrame:CGRectZero style:UITableViewStylePlain];
