@@ -98,7 +98,7 @@ Sometimes you may have trouble directing the focus engine on and off of KBDatePi
 
 ## Feature Requests
 
-Feel free to request features if you think i've overlooked anything! The only thing that is not an option is a Swift or SwiftUI re-write, I will never even CONSIDER that, so please don't ask! Thank you.
+Feel free to request features if you think i've overlooked anything! I am considering re-writing this in Swift, but not SwiftUI. Will probably take a while, but it'll be a good exercise.
 
 ## In Action
 
