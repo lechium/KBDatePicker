@@ -76,6 +76,7 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
     private var minYear = 0
     private var maxYear = 0
     private var tableViews: [DatePickerTableView] = []
+    private var currentMonthDayCount = 0
     
     var date: Date = Date() {
         didSet {
@@ -401,7 +402,13 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
     }
 
     func populateDaysForCurrentMonth() {
-        
+        if let days = self.calendar.range(of: .day, in: .month, for: date) {
+            currentMonthDayCount = days.startIndex + days.endIndex
+            if self.dayData != nil {
+                dayData = createNumberArray(count: 31, zeroIndex: false, leadingZero: false)
+                dayTable?.reloadData()
+            }
+        }
     }
     
     func toggleMidnight() {
@@ -456,7 +463,10 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
     }
     
     func delayedUpdateFocus() {
-        //FIXME
+        DispatchQueue.main.asyncAfter(deadline: (.now() + 1)) {
+            self.setNeedsFocusUpdate()
+            self.updateFocusIfNeeded()
+        }
     }
     
     func scrollToValue(_ value: AnyObject, inTableViewType:TableViewTag, animated: Bool) {
