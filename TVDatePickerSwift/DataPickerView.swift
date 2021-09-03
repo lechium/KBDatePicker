@@ -804,7 +804,19 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func selectionOccured() {
-        // FIXME: complete
+        sendActions(for: .valueChanged)
+        if self.showDateLabel {
+            datePickerLabel.isHidden = false
+            var details: String?
+            if datePickerMode == .CountDownTimer {
+                details = "countdown duration: \(countDownDuration) seconds"
+            } else {
+                details = DatePickerView.sharedDateFormatter.string(from: date)
+            }
+            datePickerLabel.text = details
+        } else {
+            datePickerLabel.isHidden = true
+        }
     }
 
     func adaptModeChange() {
