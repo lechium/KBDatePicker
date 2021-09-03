@@ -87,16 +87,20 @@ public class DatePickerView: UIControl, TableViewProtocol {
     private var hourSelected = 0
     private var minuteSelected = 0
     
-    public var date: Date = Date() {
-        didSet {
-            currentDate = date
-            scrollToCurrentDateAnimated(true)
+    public var date: Date  {
+        set(newDate) {
+            currentDate = newDate
+            scrollToCurrentDateAnimated(false)
+        }
+        get {
+            return currentDate
+            
         }
     }
     
     public func setDate(_ date: Date, animated: Bool) {
         currentDate = date
-        scrollToCurrentDateAnimated(true)
+        scrollToCurrentDateAnimated(animated)
     }
     
     public var countDownDuration: TimeInterval = 0.0 {
