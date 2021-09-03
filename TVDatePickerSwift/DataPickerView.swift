@@ -949,8 +949,68 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell() // FIXME: complete
-        
+        var cell = UITableViewCell() 
+        var reuseId = "year" //change as needed
+        if let pickerTableView = tableView as? DatePickerTableView {
+            switch pickerTableView {
+            
+            case hourTable:
+                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: hourData!) // FIXME: force unwrap
+            
+            case minuteTable:
+                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: minutesData!) // FIXME: force unwrap
+            
+            case amPMTable:
+                return amPMCellForRowAtIndexPath(indexPath: indexPath)
+                
+            case monthTable:
+                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: monthData())
+                
+            case dayTable:
+                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: dayData!)
+                
+            case yearTable:
+                var cellText = "\(indexPath.row+1)"
+                guard let newCell = pickerTableView.dequeueReusableCell(withIdentifier: reuseId) else {
+                    cell = UITableViewCell.init(style: .default, reuseIdentifier: reuseId)
+                    cell.textLabel?.textAlignment = .center
+                    cell.textLabel?.text = cellText
+                    return cell
+                }
+                cell = newCell // janky...
+                cell.textLabel?.textAlignment = .center
+                if (minYear > 1) {
+                    cellText = "\(indexPath.row + minYear + 1)"
+                }
+                cell.textLabel?.text = cellText
+            
+            case dateTable:
+                reuseId = "date"
+                let cellText = dateData![indexPath.row] // FIXME: force unwrap bad
+                guard let newCell = pickerTableView.dequeueReusableCell(withIdentifier: reuseId) else {
+                    cell = UITableViewCell.init(style: .default, reuseIdentifier: reuseId)
+                    cell.textLabel?.text = cellText
+                    return cell
+                }
+                cell = newCell // janky...
+                cell.textLabel?.text = cellText
+                
+            case countDownSecondsTable, countDownSecondsTable, countDownMinuteTable:
+                reuseId = "cd"
+                let cellText = "\(indexPath.row)"
+                guard let newCell = pickerTableView.dequeueReusableCell(withIdentifier: reuseId) else {
+                    cell = UITableViewCell.init(style: .default, reuseIdentifier: reuseId)
+                    cell.textLabel?.textAlignment = .center
+                    cell.textLabel?.text = cellText
+                    return cell
+                }
+                cell = newCell // janky...
+                cell.textLabel?.textAlignment = .center
+                cell.textLabel?.text = cellText
+            default:
+                print("default in cellForRowAtIndexPath")
+            }
+        }
         return cell
     }
     
