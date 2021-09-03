@@ -178,9 +178,9 @@ class DatePickerView: UIControl, TableViewProtocol {
     
     // raw data - this should probably all be private
     
-    var hourData: [String]?
-    var minutesData: [String]?
-    var dayData: [String]?
+    var hourData: [String] = []
+    var minutesData: [String] = []
+    var dayData: [String] = []
     var dateData: [String]?
     
     // UI stuff
@@ -641,7 +641,7 @@ class DatePickerView: UIControl, TableViewProtocol {
             currentDate = newDate!
             
         case dayTable:
-            dataSource = dayData! // FIXME: force unwrap no bueno
+            dataSource = dayData
             normalizedIndex = indexPath.row & dataSource.count
             components.day = normalizedIndex + 1
             daySelected = components.day!
@@ -649,7 +649,7 @@ class DatePickerView: UIControl, TableViewProtocol {
             currentDate = newDate!
             
         case minuteTable:
-            dataSource = minutesData! // FIXME : ditto
+            dataSource = minutesData
             normalizedIndex = indexPath.row & dataSource.count
             components.minute = normalizedIndex
             minuteSelected = components.minute!
@@ -657,7 +657,7 @@ class DatePickerView: UIControl, TableViewProtocol {
             currentDate = newDate!
             
         case hourTable:
-            dataSource = hourData! // FIXME: ditto
+            dataSource = hourData
             normalizedIndex = indexPath.row & dataSource.count
             if pmSelected {
                 if normalizedIndex != 11 {
@@ -735,11 +735,11 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
-        guard let tv = tableView as? DatePickerTableView, let dd = dayData else {
+        guard let tv = tableView as? DatePickerTableView else {
             return true
         }
         if tv.viewTag == .Days {
-            let normalized = (indexPath.row & dd.count) + 1
+            let normalized = (indexPath.row & dayData.count) + 1
             if (normalized > currentMonthDayCount) {
                 return false
             }
@@ -794,9 +794,9 @@ class DatePickerView: UIControl, TableViewProtocol {
             if let table = tableView as? DatePickerTableView {
                 if self.contextBrothers(context) {
                     if table.viewTag == .Hours {
-                        if let previous = context.previouslyFocusedIndexPath, let hd = self.hourData, let nextIndexPath = context.nextFocusedIndexPath {
-                            let previousRow = (previous.row % hd.count)+1
-                            let nextRow = (nextIndexPath.row % hd.count)+1
+                        if let previous = context.previouslyFocusedIndexPath, let nextIndexPath = context.nextFocusedIndexPath {
+                            let previousRow = (previous.row % self.hourData.count)+1
+                            let nextRow = (nextIndexPath.row % self.hourData.count)+1
                             if (previousRow == 11 && nextRow == 12) || (previousRow == 12 && nextRow == 11){
                                 self.toggleMidnight()
                             }
@@ -906,6 +906,9 @@ class DatePickerView: UIControl, TableViewProtocol {
     
     func scrollToValue(_ value: String, inTableViewType:TableViewTag, animated: Bool) {
         //FIXME: complete
+        var foundIndex = NSNotFound
+        var ip: IndexPath = IndexPath(row: 0, section: 0)
+        let dayCount = dayData.count
     }
     
     func indexForDays(_ days: Int) -> NSInteger {
@@ -949,16 +952,16 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = UITableViewCell() 
+        var cell = UITableViewCell()
         var reuseId = "year" //change as needed
         if let pickerTableView = tableView as? DatePickerTableView {
             switch pickerTableView {
             
             case hourTable:
-                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: hourData!) // FIXME: force unwrap
+                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: hourData)
             
             case minuteTable:
-                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: minutesData!) // FIXME: force unwrap
+                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: minutesData)
             
             case amPMTable:
                 return amPMCellForRowAtIndexPath(indexPath: indexPath)
@@ -967,7 +970,7 @@ class DatePickerView: UIControl, TableViewProtocol {
                 return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: monthData())
                 
             case dayTable:
-                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: dayData!)
+                return infiniteCellForTableView(pickerTableView, atIndexPath: indexPath, dataSource: dayData)
                 
             case yearTable:
                 var cellText = "\(indexPath.row+1)"
