@@ -852,7 +852,7 @@ class DatePickerView: UIControl, TableViewProtocol {
     func populateDaysForCurrentMonth() {
         if let days = self.calendar.range(of: .day, in: .month, for: date) {
             currentMonthDayCount = days.startIndex + days.endIndex
-            if self.dayData != nil {
+            if self.dayData.count == 0 {
                 dayData = createNumberArray(count: 31, zeroIndex: false, leadingZero: false)
                 dayTable?.reloadData()
             }
@@ -905,10 +905,59 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func scrollToValue(_ value: String, inTableViewType:TableViewTag, animated: Bool) {
-        //FIXME: complete
-        var foundIndex = NSNotFound
         var ip: IndexPath = IndexPath(row: 0, section: 0)
-        let dayCount = dayData.count
+        var shiftIndex = 0
+        switch inTableViewType {
+        case .Hours:
+            if let foundIndex = hourData.firstIndex(of: value) {
+                ip = IndexPath(row: startIndexForHours()+foundIndex, section: 0)
+                print("found index: \(ip.row)")
+                hourTable?.scrollToRow(at: ip, at: .top, animated: animated)
+                hourTable?.selectRow(at: ip, animated: animated, scrollPosition: .top)
+                delayedUpdateFocus()
+            }
+        
+        case .Minutes:
+            if let foundIndex = minutesData.firstIndex(of: value) {
+                ip = IndexPath(row: startIndexForMinutes()+foundIndex, section: 0)
+                print("found index: \(ip.row)")
+                minuteTable?.scrollToRow(at: ip, at: .top, animated: animated)
+                minuteTable?.selectRow(at: ip, animated: animated, scrollPosition: .top)
+                delayedUpdateFocus()
+            }
+            
+        case .Months:
+            if let foundIndex = minutesData.firstIndex(of: value), let currentValue = monthTable?.selectedValue, let relationalIndex = monthData().firstIndex(of: currentValue) {
+                shiftIndex = foundIndex - relationalIndex
+                if let selectedIndexPath = monthTable?.selectedIndexPath {
+                    ip = IndexPath(row: selectedIndexPath.row+shiftIndex, section: 0)
+                } else {
+                    ip = IndexPath(row: startIndexForHours(), section: 0)
+                }
+                monthTable?.scrollToRow(at: ip, at: .top, animated: animated)
+                monthTable?.selectRow(at: ip, animated: animated, scrollPosition: .top)
+                delayedUpdateFocus()
+            }
+        case .Days:
+            if let foundIndex = dayData.firstIndex(of: value) {
+                ip = IndexPath(row: indexForDays(dayData.count)+foundIndex, section: 0)
+                dayTable?.scrollToRow(at: ip, at: .top, animated: animated)
+                dayTable?.selectRow(at: ip, animated: animated, scrollPosition: .top)
+                delayedUpdateFocus()
+            }
+            
+        case .Years:
+            if var foundIndex = Int(value) {
+                if minYear > 1 {
+                    foundIndex = foundIndex - minYear
+                }
+                ip = IndexPath(row: foundIndex, section: 0)
+                yearTable?.scrollToRow(at: ip, at: .top, animated: animated)
+                delayedUpdateFocus()
+            }
+        default:
+            print("scrollToValue default called, investigate")
+        }
     }
     
     func indexForDays(_ days: Int) -> NSInteger {
