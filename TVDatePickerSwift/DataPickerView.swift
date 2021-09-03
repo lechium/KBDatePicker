@@ -156,12 +156,6 @@ class DatePickerView: UIControl, TableViewProtocol {
     static var longDateFormat: String = "E, MMM d, yyyy h:mm a"
     static var shortDateFormat: String = "E MMM d"
     
-    class func todayIn(year: Int) -> Date {
-        var dc = Calendar.current.dateComponents([.day, .year, .month, .hour, .minute], from: Date())
-        dc.year = year
-        return Calendar.current.date(from: dc)! //hopefully this is safe...
-    }
-    
     class var sharedDateFormatter: DateFormatter {
         let df = DateFormatter()
         df.timeZone = NSTimeZone.local
@@ -553,9 +547,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         // FIXME: complete
     }
     
-    func infiniteNumberOfRowsInSection(section: Int) -> Int {
-        return DatePickerView.numberOfCells
-    }
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == monthTable || tableView == dayTable || tableView == hourTable || tableView == minuteTable {
@@ -575,7 +567,51 @@ class DatePickerView: UIControl, TableViewProtocol {
         }
         return 0
     }
+    
+    class func todayIn(year: Int) -> Date {
+        var dc = Calendar.current.dateComponents([.day, .year, .month, .hour, .minute], from: Date())
+        dc.year = year
+        return Calendar.current.date(from: dc)! //hopefully this is safe...
+    }
+    
+    func updateDetailsAtIndexPath(_ indexPath: IndexPath, inTable: DatePickerTableView) {
+        
+    }
 
+    func selectMonthAtIndex(_ index: Int) {
+        
+    }
+    
+    func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
+        return true // FIXME
+    }
+    
+    func toggleMidnight() {
+        
+    }
+    
+    func toggleMidnightIfNecessaryWithPrevious(_ previous: Int, next: Int) {
+        
+    }
+    
+    func contextBrothers(_ context: UITableViewFocusUpdateContext) -> Bool {
+        let previousCell = context.previouslyFocusedView
+        let newCell = context.nextFocusedView
+        return previousCell?.superview == newCell?.superview
+    }
+    
+    func updateDetailsForCountdownTable(_: DatePickerTableView, currentCell: UITableViewCell) {
+        
+    }
+    
+    func tableView(_ tableView: UITableView, didUpdateFocusIn context: UITableViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+        
+    }
+    
+    func infiniteNumberOfRowsInSection(section: Int) -> Int {
+        return DatePickerView.numberOfCells
+    }
+    
     func populateYearsForDateRange() { // FIXME: null coalescing operator would be better here probably..
         if let minD = self.minimumDate {
             minYear = calendar.component(.year, from: minD)
@@ -652,39 +688,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         }
     }
     
-    func toggleMidnight() {
-        
-    }
-    
-    func updateDetailsAtIndexPath(_ indexPath: IndexPath, inTable: DatePickerTableView) {
-        
-    }
-    
-    func selectMonthAtIndex(_ index: Int) {
-        
-    }
-    
-    func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
-        return true // FIXME
-    }
-    
-    func toggleMidnightIfNecessaryWithPrevious(_ previous: Int, next: Int) {
-        
-    }
-    
-    func contextBrothers(_ context: UITableViewFocusUpdateContext) -> Bool {
-        let previousCell = context.previouslyFocusedView
-        let newCell = context.nextFocusedView
-        return previousCell?.superview == newCell?.superview
-    }
-    
-    func updateDetailsForCountdownTable(_: DatePickerTableView, currentCell: UITableViewCell) {
-        
-    }
-    
-    func tableView(_ tableView: UITableView, didUpdateFocusIn context: UITableViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        
-    }
+   
     
     func infiniteCellForTableView(_ tableView: DatePickerTableView, atIndexPath: IndexPath, dataSource:[String]) -> UITableViewCell{
         let cellId = "Cell"
@@ -717,7 +721,10 @@ class DatePickerView: UIControl, TableViewProtocol {
         return cell
     }
     
-   
+    func selectionOccured() {
+        
+    }
+
     func adaptModeChange() {
         self.removeAllSubviews()
         self.layoutViews()
@@ -742,10 +749,6 @@ class DatePickerView: UIControl, TableViewProtocol {
             return 550
         }
         return 720
-    }
-
-    func selectionOccured() {
-        
     }
 
 }
