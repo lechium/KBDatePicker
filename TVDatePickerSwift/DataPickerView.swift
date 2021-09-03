@@ -622,6 +622,36 @@ class DatePickerView: UIControl, TableViewProtocol {
         return 24000
     }
     
+    func loadTimeFromDateAnimated(_: Bool) {
+        
+    }
+    
+    func delayedUpdateFocus() {
+        DispatchQueue.main.asyncAfter(deadline: (.now() + 1)) {
+            self.setNeedsFocusUpdate()
+            self.updateFocusIfNeeded()
+        }
+    }
+    
+    func scrollToValue(_ value: AnyObject, inTableViewType:TableViewTag, animated: Bool) {
+        //FIXME
+    }
+    
+    func indexForDays(_ days: Int) -> NSInteger {
+        switch days {
+        case 28:
+            return 24976
+        case 29:
+            return 24696
+        case 30:
+            return 24990
+        case 31:
+            return 24986
+        default:
+            return 25000
+        }
+    }
+    
     func toggleMidnight() {
         
     }
@@ -654,37 +684,6 @@ class DatePickerView: UIControl, TableViewProtocol {
     
     func tableView(_ tableView: UITableView, didUpdateFocusIn context: UITableViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
         
-    }
-    
-  
-    func loadTimeFromDateAnimated(_: Bool) {
-        
-    }
-    
-    func delayedUpdateFocus() {
-        DispatchQueue.main.asyncAfter(deadline: (.now() + 1)) {
-            self.setNeedsFocusUpdate()
-            self.updateFocusIfNeeded()
-        }
-    }
-    
-    func scrollToValue(_ value: AnyObject, inTableViewType:TableViewTag, animated: Bool) {
-        //FIXME
-    }
-    
-    func indexForDays(_ days: Int) -> NSInteger {
-        switch days {
-        case 28:
-            return 24976
-        case 29:
-            return 24696
-        case 30:
-            return 24990
-        case 31:
-            return 24986
-        default:
-            return 25000
-        }
     }
     
     func infiniteCellForTableView(_ tableView: DatePickerTableView, atIndexPath: IndexPath, dataSource:[String]) -> UITableViewCell{
