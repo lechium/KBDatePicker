@@ -1045,7 +1045,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
                 cell = newCell // janky...
                 cell.textLabel?.text = cellText
                 
-            case countDownSecondsTable, countDownSecondsTable, countDownMinuteTable:
+            case countDownSecondsTable, countDownHourTable, countDownMinuteTable:
                 reuseId = "cd"
                 let cellText = "\(indexPath.row)"
                 guard let newCell = pickerTableView.dequeueReusableCell(withIdentifier: reuseId) else {
