@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		320B682C26E2AD2E0041ED01 /* TVDatePickerSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; };
 		3211B12526E131FD0062B1B4 /* TVDatePickerSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 3211B12326E131FD0062B1B4 /* TVDatePickerSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3211B12826E131FD0062B1B4 /* TVDatePickerSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; };
 		3211B12926E131FD0062B1B4 /* TVDatePickerSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -20,6 +19,8 @@
 		325D7B2C25979B7C00CC6B10 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 325D7B2A25979B7C00CC6B10 /* LaunchScreen.storyboard */; };
 		325D7B2F25979B7C00CC6B10 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B2E25979B7C00CC6B10 /* main.m */; };
 		325D7B3B2597B97200CC6B10 /* KBDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */; };
+		32BBBCC326E2CCA400CCA9E0 /* TVDatePickerSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; };
+		32BBBCC426E2CCA400CCA9E0 /* TVDatePickerSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		32C7DE2825A5A01500FDB324 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C7DE2725A5A01500FDB324 /* AppDelegate.swift */; };
 		32C7DE2A25A5A01600FDB324 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C7DE2925A5A01500FDB324 /* ViewController.swift */; };
 		32C7DE2F25A5A01800FDB324 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32C7DE2E25A5A01800FDB324 /* Assets.xcassets */; };
@@ -52,6 +53,17 @@
 			dstSubfolderSpec = 10;
 			files = (
 				3211B12926E131FD0062B1B4 /* TVDatePickerSwift.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		32BBBCC526E2CCA400CCA9E0 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				32BBBCC426E2CCA400CCA9E0 /* TVDatePickerSwift.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -107,7 +119,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				320B682C26E2AD2E0041ED01 /* TVDatePickerSwift.framework in Frameworks */,
+				32BBBCC326E2CCA400CCA9E0 /* TVDatePickerSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,6 +265,7 @@
 				32C7DE2125A5A01500FDB324 /* Sources */,
 				32C7DE2225A5A01500FDB324 /* Frameworks */,
 				32C7DE2325A5A01500FDB324 /* Resources */,
+				32BBBCC526E2CCA400CCA9E0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
