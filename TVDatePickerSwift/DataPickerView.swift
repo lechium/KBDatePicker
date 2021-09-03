@@ -32,7 +32,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
         }
     }
     
-     init(withHybrdidLayout: Bool) {
+     public init(withHybrdidLayout: Bool) {
         super.init(frame: .zero)
         isEnabled = false //just in case, hopefully this doesnt create a loop or some dumb shit
         hybridLayout = withHybrdidLayout
@@ -47,19 +47,19 @@ public class DatePickerView: UIControl, TableViewProtocol {
         addGestureRecognizer(menuTapGestureRecognizer)
     }
     
-    var locale: Locale = Locale.current {
+    public var locale: Locale = Locale.current {
         didSet {
             _updateFormatters()
             adaptModeChange()
         }
     } // default is .current. setting nil returns to default
-    var calendar: Calendar = Calendar.current  { // default is .current. setting nil returns to default
+    public var calendar: Calendar = Calendar.current  { // default is .current. setting nil returns to default
         didSet {
             calendar.timeZone = self.timeZone
             adaptModeChange()
         }
     }
-    var timeZone: TimeZone = TimeZone.current {
+    public var timeZone: TimeZone = TimeZone.current {
         didSet {
             calendar.timeZone = timeZone
             DatePickerView.sharedDateFormatter.timeZone = timeZone
@@ -84,46 +84,46 @@ public class DatePickerView: UIControl, TableViewProtocol {
     private var hourSelected = 0
     private var minuteSelected = 0
     
-    var date: Date = Date() {
+    public var date: Date = Date() {
         didSet {
             currentDate = date
             scrollToCurrentDateAnimated(true)
         }
     }
     
-    func setDate(_ date: Date, animated: Bool) {
+    public func setDate(_ date: Date, animated: Bool) {
         currentDate = date
         scrollToCurrentDateAnimated(true)
     }
     
-    var countDownDuration: TimeInterval = 0.0 {
+    public var countDownDuration: TimeInterval = 0.0 {
         didSet {
             scrollToCurrentDateAnimated(true)
         }
     } // for CountDownTimer, ignored otherwise. default is 0.0. limit is 23:59 (86,399 seconds). value being set is div 60 (drops remaining seconds).
-    var minuteInterval: Int?
+    public var minuteInterval: Int?
     
-    var showDateLabel: Bool = true {
+    public var showDateLabel: Bool = true {
         didSet {
             self.datePickerLabel.isHidden = !showDateLabel
         }
     }
-    var datePickerMode: DatePickerMode = .Date {
+    public var datePickerMode: DatePickerMode = .Date {
         didSet {
             adaptModeChange()
         }
     }
-    var topOffset: CGFloat = 20.0
-    var hybridLayout: Bool = false // if set to hybrid, we allow manual layout for the width of our view
+    public var topOffset: CGFloat = 20.0
+    public var hybridLayout: Bool = false // if set to hybrid, we allow manual layout for the width of our view
     
-    var minimumDate: Date? {
+    public var minimumDate: Date? {
         didSet {
             if validateMinMax() {
                 populateYearsForDateRange()
             }
         }
     }
-    var maximumDate: Date? {
+    public var maximumDate: Date? {
         didSet {
             if validateMinMax() {
                 populateYearsForDateRange()
@@ -167,7 +167,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
         return df
     }
     
-    init(hybrid: Bool) {
+    public init(hybrid: Bool) {
         hybridLayout = hybrid
         super.init(frame: .zero)
     }
