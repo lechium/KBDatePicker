@@ -79,6 +79,12 @@ class DatePickerView: UIControl, TableViewProtocol {
     private var tableViews: [DatePickerTableView] = []
     private var currentMonthDayCount = 0
     
+    private var yearSelected = 0
+    private var monthSelected = 0
+    private var daySelected = 0
+    private var hourSelected = 0
+    private var minuteSelected = 0
+    
     var date: Date = Date() {
         didSet {
             currentDate = date
@@ -513,7 +519,16 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func viewSetupForMode() {
-        
+        switch datePickerMode {
+        case .Time:
+            layoutForTime()
+        case .Date:
+            layoutForDate()
+        case .DateAndTime:
+            layoutForDateAndTime()
+        case .CountDownTimer:
+            layoutForCountdownTimer()
+        }
     }
     
     func createNumberArray(count: Int, zeroIndex: Bool, leadingZero:Bool) -> [String] {
@@ -535,7 +550,7 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func scrollToCurrentDateAnimated(_ animated: Bool) {
-        
+        // FIXME: complete
     }
     
     func infiniteNumberOfRowsInSection(section: Int) -> Int {
@@ -561,8 +576,27 @@ class DatePickerView: UIControl, TableViewProtocol {
         return 0
     }
 
-    func populateYearsForDateRange() { // FIXME
+    func populateYearsForDateRange() { // FIXME: null coalescing operator would be better here probably..
+        if let minD = self.minimumDate {
+            minYear = calendar.component(.year, from: minD)
+        } else {
+            minYear = 1
+        }
+        if let maxD = self.maximumDate {
+            maxYear = calendar.component(.year, from: maxD)
+        } else {
+            maxYear = DatePickerView.numberOfCells
+        }
         
+        if yearTable?.selectedValue != nil && yearSelected != 0 {
+            if minYear > 1 {
+                let yearDifference = yearSelected - minYear
+                yearTable?.scrollToRow(at: IndexPath.init(row: yearDifference, section: 0), at: .top, animated: false)
+            }
+        }
+        //DispatchQueue.main.async {
+            yearTable?.reloadData()
+        //}
     }
 
     func populateDaysForCurrentMonth() {
