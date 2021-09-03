@@ -625,7 +625,103 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func updateDetailsAtIndexPath(_ indexPath: IndexPath, inTable: DatePickerTableView) {
-        // FIXME: complete
+        // FIXME: so many force unwraps!!
+        var components = currentComponents(units: [.month, .day, .year, .hour, .minute])
+        var dataSource: [String] = []
+        var normalizedIndex = NSNotFound
+        
+        switch inTable {
+        
+        case monthTable:
+            dataSource = monthData()
+            normalizedIndex = indexPath.row % dataSource.count
+            components.month = normalizedIndex + 1
+            monthSelected = components.month!
+            let newDate = calendar.date(from: components)
+            currentDate = newDate!
+            
+        case dayTable:
+            dataSource = dayData! // FIXME: force unwrap no bueno
+            normalizedIndex = indexPath.row & dataSource.count
+            components.day = normalizedIndex + 1
+            daySelected = components.day!
+            let newDate = calendar.date(from: components)
+            currentDate = newDate!
+            
+        case minuteTable:
+            dataSource = minutesData! // FIXME : ditto
+            normalizedIndex = indexPath.row & dataSource.count
+            components.minute = normalizedIndex
+            minuteSelected = components.minute!
+            let newDate = calendar.date(from: components)
+            currentDate = newDate!
+            
+        case hourTable:
+            dataSource = hourData! // FIXME: ditto
+            normalizedIndex = indexPath.row & dataSource.count
+            if pmSelected {
+                if normalizedIndex != 11 {
+                    normalizedIndex += 12
+                }
+            } else {
+                if normalizedIndex == 11 {
+                    normalizedIndex += 12
+                }
+            }
+            components.hour = normalizedIndex + 1
+            hourSelected = components.hour!
+            let newDate = calendar.date(from: components)
+            currentDate = newDate!
+            
+        case yearTable:
+            var year = yearTable?.selectedIndexPath?.row
+            var adjustment = 1
+            if minYear > 1 {
+                adjustment = 0
+                year = Int((yearTable?.selectedValue)!) // FIXME: ditto
+            }
+            components.year = year! + adjustment
+            var newDate: Date?
+            repeat {
+                newDate = calendar.date(from: components)
+                components.day! -= 1
+            } while newDate == nil || calendar.component(.month, from: newDate!) != components.month // FIXME: ditto
+            currentDate = newDate!
+            
+        case amPMTable:
+            let previousState = pmSelected
+            if indexPath.row == 0 {
+                pmSelected = false
+                if hourSelected != 0 {
+                    if previousState != pmSelected {
+                        components.hour! -= 12
+                        hourSelected = components.hour!
+                        if let date = calendar.date(from: components) {
+                            currentDate = date
+                        }
+                    }
+                }
+            } else if indexPath.row == 1 {
+                pmSelected = true
+                if hourSelected != 0 && previousState != pmSelected {
+                    components.hour! += 12
+                    hourSelected = components.hour!
+                    if let date = calendar.date(from: components) {
+                        currentDate = date
+                    }
+                }
+            }
+            
+        case dateTable:
+            var dc = currentComponents(units: [.year, .day, .hour, .minute])
+            dc.day = indexPath.row+1
+            currentDate = calendar.date(from: dc)!
+        
+        default:
+            print("updateDetailsAtIndexPath default")
+        }
+    
+        selectionOccured()
     }
 
     func selectMonthAtIndex(_ index: Int) {
