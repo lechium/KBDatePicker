@@ -609,6 +609,19 @@ class DatePickerView: UIControl, TableViewProtocol {
         }
     }
     
+    func setupTimeData() {
+        hourData = createNumberArray(count: 12, zeroIndex: false, leadingZero: false)
+        minutesData = createNumberArray(count: 60, zeroIndex: true, leadingZero: true)
+    }
+    
+    func startIndexForHours() -> Int {
+        return 24996
+    }
+    
+    func startIndexForMinutes() -> Int {
+        return 24000
+    }
+    
     func toggleMidnight() {
         
     }
@@ -643,19 +656,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         
     }
     
-    func setupTimeData() {
-        hourData = createNumberArray(count: 12, zeroIndex: false, leadingZero: false)
-        minutesData = createNumberArray(count: 60, zeroIndex: true, leadingZero: true)
-    }
-    
-    func startIndexForMinutes() -> Int {
-        return 24000
-    }
-    
-    func startIndexForHours() -> Int {
-        return 24996
-    }
-    
+  
     func loadTimeFromDateAnimated(_: Bool) {
         
     }
