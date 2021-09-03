@@ -739,7 +739,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             return true
         }
         if tv.viewTag == .Days {
-            let normalized = (indexPath.row & dayData.count) + 1
+            let normalized = (indexPath.row % dayData.count) + 1
             if (normalized > currentMonthDayCount) {
                 return false
             }
@@ -851,7 +851,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
 
     func populateDaysForCurrentMonth() {
         if let days = self.calendar.range(of: .day, in: .month, for: date) {
-            currentMonthDayCount = days.startIndex + days.endIndex
+            currentMonthDayCount = days.endIndex - days.startIndex
             if self.dayData.count == 0 {
                 dayData = createNumberArray(count: 31, zeroIndex: false, leadingZero: false)
                 dayTable?.reloadData()

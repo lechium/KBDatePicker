@@ -43,7 +43,6 @@
     [self.datePickerView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor].active = true;
     [self.datePickerView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = true;
     //[self.datePickerView.widthAnchor constraintEqualToConstant:720].active = true;
-    _datePickerView.backgroundColor = [UIColor redColor];
     self.toggleTypeButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.toggleTypeButton.translatesAutoresizingMaskIntoConstraints = false;
     [self.view addSubview:self.toggleTypeButton];

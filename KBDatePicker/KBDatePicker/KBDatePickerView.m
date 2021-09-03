@@ -884,6 +884,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 - (BOOL)tableView:(UITableView *)tableView canFocusRowAtIndexPath:(NSIndexPath *)indexPath {
     if (tableView.tag == KBTableViewTagDays){
         NSInteger normalized = (indexPath.row % self.dayData.count) + 1;
+        NSLog(@"norm: %lu currentMountDayCount: %lu", normalized, _currentMonthDayCount);
         if (normalized > _currentMonthDayCount){
             return false;
         }
