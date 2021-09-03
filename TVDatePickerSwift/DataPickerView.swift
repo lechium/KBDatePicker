@@ -15,18 +15,18 @@ extension DefaultStringInterpolation {
     }
 }
 
-enum DatePickerMode {
+public enum DatePickerMode {
     case Time
     case Date
     case DateAndTime
     case CountDownTimer
 }
 
-class DatePickerView: UIControl, TableViewProtocol {
+public class DatePickerView: UIControl, TableViewProtocol {
     
     static let stackViewHeight: CGFloat = 128.0
     static let numberOfCells: Int = 100000
-    override var isEnabled: Bool {
+    public override var isEnabled: Bool {
         didSet {
             self.isEnabled = false
         }
@@ -599,7 +599,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         }
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == monthTable || tableView == dayTable || tableView == hourTable || tableView == minuteTable {
             return infiniteNumberOfRowsInSection(section: section)
         } else if tableView == amPMTable {
@@ -734,7 +734,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         date = calendar.date(from: comp)! // TODO: make sure this is always safe
     }
     
-    func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
+    public func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
         guard let tv = tableView as? DatePickerTableView else {
             return true
         }
@@ -788,7 +788,7 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     
-    func tableView(_ tableView: UITableView, didUpdateFocusIn context: UITableViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+    public func tableView(_ tableView: UITableView, didUpdateFocusIn context: UITableViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
         coordinator.addCoordinatedAnimations {
             //animations
             if let table = tableView as? DatePickerTableView {
@@ -1000,7 +1000,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         return cell!
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = UITableViewCell()
         var reuseId = "year" //change as needed
         if let pickerTableView = tableView as? DatePickerTableView {
@@ -1090,7 +1090,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         }
     }
     
-    override func sizeThatFits(_ size: CGSize) -> CGSize {
+    public override func sizeThatFits(_ size: CGSize) -> CGSize {
         return CGSize(width: widthForMode(), height: DatePickerView.stackViewHeight+81+60+40)
     }
     
