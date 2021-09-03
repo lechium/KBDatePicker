@@ -425,10 +425,10 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self.datePickerLabel.topAnchor constraintEqualToAnchor:self.datePickerStackView.bottomAnchor constant:80].active = true;
     [self setupLabelsForMode];
     if (self.dayLabel){
-        //DPLog(@"day label in mode: %@", NSStringFromKBDatePickerMode(self.datePickerMode));
+        DPLog(@"day label in mode: %@", NSStringFromKBDatePickerMode(self.datePickerMode));
         [self.datePickerStackView.topAnchor constraintEqualToAnchor:self.dayLabel.bottomAnchor constant:60].active = true;
     } else {
-        //DPLog(@"no day label in mode: %@", NSStringFromKBDatePickerMode(self.datePickerMode));
+        DPLog(@"no day label in mode: %@", NSStringFromKBDatePickerMode(self.datePickerMode));
         [self.datePickerStackView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor].active = true;
     }
     [self scrollToCurrentDateAnimated:false];

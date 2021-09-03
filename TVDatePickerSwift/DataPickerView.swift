@@ -15,7 +15,7 @@ extension DefaultStringInterpolation {
     }
 }
 
-public enum DatePickerMode {
+public enum DatePickerMode: Int, CaseIterable {
     case Time
     case Date
     case DateAndTime
@@ -43,6 +43,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func _initializeDefaults() {
+        datePickerMode = .Date
         let menuTapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(menuGestureRecognized(_:)))
         menuTapGestureRecognizer.numberOfTapsRequired = 1
         menuTapGestureRecognizer.allowedPressTypes = [NSNumber(value: UIPress.PressType.menu.rawValue)]
@@ -207,6 +208,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
     var datePickerLabel: UILabel = UILabel()
     
     var widthConstraint: NSLayoutConstraint?
+    var topConstraint: NSLayoutConstraint?
     var stackDistribution: UIStackView.Distribution = .fillProportionally
     
     // imp
@@ -292,7 +294,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
         if let dl = self.dayLabel {
             datePickerStackView.topAnchor .constraint(equalTo: dl.bottomAnchor, constant: 60).isActive = true
         } else {
-            datePickerStackView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+            datePickerStackView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         }
         scrollToCurrentDateAnimated(false)
     }
@@ -345,7 +347,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
         yearLabel?.text = NSLocalizedString("Year", comment: "")
         dayLabel = UILabel()
         dayLabel?.translatesAutoresizingMaskIntoConstraints = false
-        dayLabel?.text = NSLocalizedString("Year", comment: "")
+        dayLabel?.text = NSLocalizedString("Day", comment: "")
         
         // tables
         monthTable = DatePickerTableView.init(tag: .Months, delegate: self)
@@ -357,7 +359,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             return
         }
         mt.customWidth = 200
-        yt.customWidth = 80
+        dt.customWidth = 80
         yt.customWidth = 150
         tableViews = [mt, dt, yt]
         addSubview(monthLabel!)

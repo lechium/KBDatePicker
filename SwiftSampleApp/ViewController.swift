@@ -42,6 +42,8 @@ class ViewController: UIViewController {
         if datePickerView.datePickerMode == .CountDownTimer {
             self.datePickerView.datePickerMode = .Time
         } else {
+            print(self.datePickerView.datePickerMode.rawValue)
+            self.datePickerView.datePickerMode = DatePickerMode(rawValue: self.datePickerView.datePickerMode.rawValue+1)!
             //self.datePickerView.datePickerMode = DatePickerMode(rawValue:)//datePickerView.datePickerMode. //KBDatePickerMode(rawValue: self.datePickerView.datePickerMode.rawValue+1)
         }
     }
