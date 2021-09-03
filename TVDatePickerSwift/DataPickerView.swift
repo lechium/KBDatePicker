@@ -22,7 +22,6 @@ enum DatePickerMode {
     case CountDownTimer
 }
 
-
 class DatePickerView: UIControl, TableViewProtocol {
     
     static let stackViewHeight: CGFloat = 128.0
@@ -138,8 +137,6 @@ class DatePickerView: UIControl, TableViewProtocol {
         DatePickerView.sharedDateFormatter.dateFormat = DateFormatter.dateFormat(fromTemplate: DatePickerView.longDateFormat, options: 0, locale: locale)
         DatePickerView.sharedMinimumDateFormatter.dateFormat = DateFormatter.dateFormat(fromTemplate: DatePickerView.shortDateFormat, options: 0, locale: locale)
     }
-    
- 
     
     func validateMinMax() -> Bool {
         guard let minimumDate = minimumDate, let maximumDate = maximumDate else {
@@ -547,8 +544,6 @@ class DatePickerView: UIControl, TableViewProtocol {
         // FIXME: complete
     }
     
-    
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == monthTable || tableView == dayTable || tableView == hourTable || tableView == minuteTable {
             return infiniteNumberOfRowsInSection(section: section)
@@ -575,23 +570,48 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func updateDetailsAtIndexPath(_ indexPath: IndexPath, inTable: DatePickerTableView) {
-        
+        // FIXME: complete
     }
 
     func selectMonthAtIndex(_ index: Int) {
-        
+        var comp = currentComponents(units: [.month, .day, .year])
+        var adjustedIndex = index
+        if index > monthData().count {
+            adjustedIndex = index % monthData().count
+        }
+        comp.month = adjustedIndex
+        date = calendar.date(from: comp)! // TODO: make sure this is always safe
     }
     
     func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
-        return true // FIXME
+        guard let tv = tableView as? DatePickerTableView, let dd = dayData else {
+            return true
+        }
+        if tv.viewTag == .Days {
+            let normalized = (indexPath.row & dd.count) + 1
+            if (normalized > currentMonthDayCount) {
+                return false
+            }
+        }
+        return true // FIXME: not sure this works properly yet
     }
     
     func toggleMidnight() {
-        
+        var index = 1
+        if pmSelected {
+            index = 0
+        }
+        amPMTable?.selectRow(at: IndexPath(row: index, section: 0), animated: true, scrollPosition: .top)
+        pmSelected = !pmSelected
     }
     
     func toggleMidnightIfNecessaryWithPrevious(_ previous: Int, next: Int) {
-        
+        if previous == 11 && next == 12 && !pmSelected {
+            toggleMidnight()
+        }
+        if previous == 12 && next == 1 && !pmSelected{
+            toggleMidnight()
+        }
     }
     
     func contextBrothers(_ context: UITableViewFocusUpdateContext) -> Bool {
@@ -600,12 +620,55 @@ class DatePickerView: UIControl, TableViewProtocol {
         return previousCell?.superview == newCell?.superview
     }
     
-    func updateDetailsForCountdownTable(_: DatePickerTableView, currentCell: UITableViewCell) {
-        
+    func updateDetailsForCountdownTable(_ tableView: DatePickerTableView, currentCell: UITableViewCell) {
+        guard let label = currentCell.textLabel, let text = label.text else {
+            return
+        }
+        //TODO: fix the force upwrapping here
+        if tableView == countDownSecondsTable {
+            countDownSecondSelected = Int(text)!
+        } else if tableView == countDownMinuteTable {
+            countDownMinuteSelected = Int(text)!
+        } else if tableView == countDownHourTable {
+            countDownHourSelected = Int(text)!
+        }
+        countDownDuration = TimeInterval(countDownSecondSelected + (countDownMinuteSelected*60) + (countDownHourSelected * 3600))
+        selectionOccured()
     }
     
+    
     func tableView(_ tableView: UITableView, didUpdateFocusIn context: UITableViewFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        
+        coordinator.addCoordinatedAnimations {
+            //animations
+            if let table = tableView as? DatePickerTableView {
+                if self.contextBrothers(context) {
+                    if table.viewTag == .Hours {
+                        if let previous = context.previouslyFocusedIndexPath, let hd = self.hourData, let nextIndexPath = context.nextFocusedIndexPath {
+                            let previousRow = (previous.row % hd.count)+1
+                            let nextRow = (nextIndexPath.row % hd.count)+1
+                            if (previousRow == 11 && nextRow == 12) || (previousRow == 12 && nextRow == 11){
+                                self.toggleMidnight()
+                            }
+                        }
+                    }
+                } //contextBrothers
+                if let nextIndexPath = context.nextFocusedIndexPath, let nextFocusedView = context.nextFocusedView as? UITableViewCell {
+                    table.selectedIndexPath = nextIndexPath
+                    if self.datePickerMode == .CountDownTimer {
+                        self.updateDetailsForCountdownTable(table, currentCell: nextFocusedView)
+                    } else {
+                        self.updateDetailsAtIndexPath(nextIndexPath, inTable: table)
+                        if table.viewTag == .Months {
+                            self.populateDaysForCurrentMonth()
+                        }
+                    }
+                    tableView.selectRow(at: nextIndexPath, animated: false, scrollPosition: .top)
+                }
+            } //let table = tableView as DatePicker
+        } completion: {
+            //done
+        }
+
     }
     
     func infiniteNumberOfRowsInSection(section: Int) -> Int {
@@ -658,8 +721,29 @@ class DatePickerView: UIControl, TableViewProtocol {
         return 24000
     }
     
-    func loadTimeFromDateAnimated(_: Bool) {
-        
+    func loadTimeFromDateAnimated(_ animated: Bool) {
+        let components = currentComponents(units: [.hour, .minute])
+        if var hour = components.hour, let minutes = components.minute {
+            let isPM = hour >= 12
+            if isPM {
+                pmSelected = true
+                hour = hour-12
+                let amPMIndex = IndexPath(row: 1, section: 0)
+                amPMTable?.scrollToRow(at: amPMIndex, at: .top, animated: false)
+            }
+            let hourValue = "\(hour)"
+            let minuteValue = "\(minutes)"
+            if let hourTable = hourTable {
+                if hourTable.selectedValue != hourValue {
+                    self.scrollToValue(hourValue, inTableViewType: .Hours, animated: animated)
+                }
+            }
+            if let minuteTable = minuteTable {
+                if minuteTable.selectedValue != minuteValue {
+                    self.scrollToValue(minuteValue, inTableViewType: .Minutes, animated: animated)
+                }
+            }
+        }
     }
     
     func delayedUpdateFocus() {
@@ -669,8 +753,8 @@ class DatePickerView: UIControl, TableViewProtocol {
         }
     }
     
-    func scrollToValue(_ value: AnyObject, inTableViewType:TableViewTag, animated: Bool) {
-        //FIXME
+    func scrollToValue(_ value: String, inTableViewType:TableViewTag, animated: Bool) {
+        //FIXME: complete
     }
     
     func indexForDays(_ days: Int) -> NSInteger {
@@ -687,8 +771,6 @@ class DatePickerView: UIControl, TableViewProtocol {
             return 25000
         }
     }
-    
-   
     
     func infiniteCellForTableView(_ tableView: DatePickerTableView, atIndexPath: IndexPath, dataSource:[String]) -> UITableViewCell{
         let cellId = "Cell"
@@ -716,13 +798,13 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell() // FIXME
+        let cell = UITableViewCell() // FIXME: complete
         
         return cell
     }
     
     func selectionOccured() {
-        
+        // FIXME: complete
     }
 
     func adaptModeChange() {
