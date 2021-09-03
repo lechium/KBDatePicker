@@ -541,7 +541,62 @@ class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func scrollToCurrentDateAnimated(_ animated: Bool) {
-        // FIXME: complete
+        
+        switch datePickerMode {
+        case .Time:
+            loadTimeFromDateAnimated(animated)
+        
+        case .CountDownTimer:
+            countDownHourSelected = Int(countDownDuration / 3600)
+            countDownMinuteSelected = Int(countDownDuration / 60) % 60
+            countDownSecondSelected = Int(countDownDuration) % 60
+            let hourIP = IndexPath(row: countDownHourSelected, section: 0)
+            let minIP = IndexPath(row: countDownMinuteSelected, section: 0)
+            let secIP = IndexPath(row: countDownSecondSelected, section: 0)
+            if let hSip = countDownHourTable?.selectedIndexPath {
+                if hSip != hourIP {
+                    countDownHourTable?.scrollToRow(at: hourIP, at: .top, animated: animated)
+                    countDownHourTable?.selectRow(at: hourIP, animated: true, scrollPosition: .top)
+                }
+            }
+            if let mSip = countDownMinuteTable?.selectedIndexPath {
+                if mSip != minIP {
+                    countDownMinuteTable?.scrollToRow(at: minIP, at: .top, animated: animated)
+                    countDownMinuteTable?.selectRow(at: minIP, animated: true, scrollPosition: .top)
+                }
+            }
+            if let sSip = countDownSecondsTable?.selectedIndexPath {
+                if sSip != secIP {
+                    countDownSecondsTable?.scrollToRow(at: secIP, at: .top, animated: animated)
+                    countDownSecondsTable?.selectRow(at: secIP, animated: true, scrollPosition: .top)
+                }
+            }
+            
+        case .Date:
+            let components = currentComponents(units: [.year, .month, .day])
+            let monthIndex = components.month! - 1 // FIXME: no force unwraps if possible, just trying to get this working
+            let monthSymbol = self.monthData()[monthIndex]
+            if monthTable?.selectedValue != monthSymbol {
+                scrollToValue(monthSymbol, inTableViewType: .Months, animated: animated)
+            }
+            let dayIndex = components.day!
+            let dayString = "\(dayIndex)"
+            if dayTable?.selectedValue != dayString {
+                scrollToValue(dayString, inTableViewType: .Days, animated: animated)
+            }
+            let yearIndex = components.year! - 1 // FIXME: ditto
+            let yearString = "\(yearIndex)"
+            if yearTable?.selectedValue != yearString {
+                scrollToValue(yearString, inTableViewType: .Years, animated: animated)
+            }
+            delayedUpdateFocus()
+            
+        default:
+            loadTimeFromDateAnimated(animated)
+            let components = currentComponents(units: [.year, .day])
+            let currentDay = components.day!-1
+            dateTable?.scrollToRow(at: IndexPath(row: currentDay, section: 0), at: .top, animated: animated)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -842,7 +897,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         case .CountDownTimer:
             return 550
         }
-        return 720
+        //return 720
     }
 
 }
