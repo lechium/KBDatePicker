@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		320B682C26E2AD2E0041ED01 /* TVDatePickerSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; };
 		3211B12526E131FD0062B1B4 /* TVDatePickerSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 3211B12326E131FD0062B1B4 /* TVDatePickerSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3211B12826E131FD0062B1B4 /* TVDatePickerSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; };
 		3211B12926E131FD0062B1B4 /* TVDatePickerSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3211B12126E131FD0062B1B4 /* TVDatePickerSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -27,6 +28,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		320B682926E2AD270041ED01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 325D7B1425979B7B00CC6B10 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3211B12026E131FD0062B1B4;
+			remoteInfo = TVDatePickerSwift;
+		};
 		3211B12626E131FD0062B1B4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 325D7B1425979B7B00CC6B10 /* Project object */;
@@ -99,12 +107,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				320B682C26E2AD2E0041ED01 /* TVDatePickerSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		320B682B26E2AD2E0041ED01 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3211B12226E131FD0062B1B4 /* TVDatePickerSwift */ = {
 			isa = PBXGroup;
 			children = (
@@ -124,6 +140,7 @@
 				32C7DE2625A5A01500FDB324 /* SwiftSampleApp */,
 				3211B12226E131FD0062B1B4 /* TVDatePickerSwift */,
 				325D7B1D25979B7B00CC6B10 /* Products */,
+				320B682B26E2AD2E0041ED01 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -240,6 +257,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				320B682A26E2AD270041ED01 /* PBXTargetDependency */,
 			);
 			name = SwiftSampleApp;
 			productName = SwiftSampleApp;
@@ -371,6 +389,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		320B682A26E2AD270041ED01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3211B12026E131FD0062B1B4 /* TVDatePickerSwift */;
+			targetProxy = 320B682926E2AD270041ED01 /* PBXContainerItemProxy */;
+		};
 		3211B12726E131FD0062B1B4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3211B12026E131FD0062B1B4 /* TVDatePickerSwift */;
@@ -424,7 +447,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 14.3;
+				TVOS_DEPLOYMENT_TARGET = 13.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -456,7 +479,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 14.3;
+				TVOS_DEPLOYMENT_TARGET = 13.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};

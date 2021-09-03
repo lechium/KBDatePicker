@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import TVDatePickerSwift
 
 class ViewController: UIViewController {
     
-    let datePickerView = KBDatePickerView()
+    let datePickerView = DatePickerView(withHybrdidLayout: false)
+    //let datePickerView = KBDatePickerView()
     let toggleButton = UIButton(type: .system)
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +30,7 @@ class ViewController: UIViewController {
         toggleButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
         toggleButton.addTarget(self, action: #selector(toggleMode), for: .primaryActionTriggered)
         
-        datePickerView.datePickerMode = KBDatePickerModeCountDownTimer
+        datePickerView.datePickerMode = .CountDownTimer//KBDatePickerModeCountDownTimer
         datePickerView.countDownDuration = 4100
     }
    
@@ -37,14 +39,15 @@ class ViewController: UIViewController {
     }
     
     @objc func toggleMode() -> Void {
-        if datePickerView.datePickerMode == KBDatePickerModeCountDownTimer {
-            self.datePickerView.datePickerMode = KBDatePickerModeTime
+        if datePickerView.datePickerMode == .CountDownTimer {
+            self.datePickerView.datePickerMode = .Time
         } else {
-            self.datePickerView.datePickerMode = KBDatePickerMode(rawValue: self.datePickerView.datePickerMode.rawValue+1)
+            //self.datePickerView.datePickerMode = DatePickerMode(rawValue:)//datePickerView.datePickerMode. //KBDatePickerMode(rawValue: self.datePickerView.datePickerMode.rawValue+1)
         }
     }
     
-    @objc func actionOccured(sender: KBDatePickerView) -> Void {
+    @objc func actionOccured(sender: DatePickerView) -> Void {
+        //print
         print("date selected: \(sender.date)")
     }
 

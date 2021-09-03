@@ -26,12 +26,14 @@ public class DatePickerView: UIControl, TableViewProtocol {
     
     static let stackViewHeight: CGFloat = 128.0
     static let numberOfCells: Int = 100000
+    /*
     public override var isEnabled: Bool {
+        
         didSet {
             self.isEnabled = false
         }
     }
-    
+    */
      public init(withHybrdidLayout: Bool) {
         super.init(frame: .zero)
         isEnabled = false //just in case, hopefully this doesnt create a loop or some dumb shit
@@ -167,10 +169,6 @@ public class DatePickerView: UIControl, TableViewProtocol {
         return df
     }
     
-    public init(hybrid: Bool) {
-        hybridLayout = hybrid
-        super.init(frame: .zero)
-    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -260,7 +258,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
 
     func layoutViews() {
         viewSetupForMode()
-        if tableViews.count > 0 {
+        if tableViews.count == 0 {
             return
         }
         

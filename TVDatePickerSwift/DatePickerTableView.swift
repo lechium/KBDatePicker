@@ -16,7 +16,7 @@ protocol TableViewProtocol: UITableViewDelegate, UITableViewDataSource {
  */
 }
 
-enum TableViewTag: String {
+enum TableViewTag: Int {
     case Months
     case Days
     case Years
@@ -67,7 +67,6 @@ class DatePickerTableView: UITableView {
     
     override var description: String {
         let og = super.description
-        return og + " " + viewTag.rawValue
+        return "\(og) \(viewTag)"
     }
-    
 }
