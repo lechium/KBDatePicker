@@ -499,7 +499,6 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self.monthLabel.centerXAnchor constraintEqualToAnchor:self.monthTable.centerXAnchor].active = true;
     [self.yearLabel.centerXAnchor constraintEqualToAnchor:self.yearTable.centerXAnchor].active = true;
     [self.yearLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
-    [self.monthLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
 }
 
 - (NSInteger)currentYear {
@@ -609,7 +608,6 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     [self.hourLabel.centerXAnchor constraintEqualToAnchor:self.countDownHourTable.centerXAnchor].active = true;
     [self.secLabel.centerXAnchor constraintEqualToAnchor:self.countDownSecondsTable.centerXAnchor].active = true;
     [self.secLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
-    [self.minLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:_topOffset].active = true;
 }
 
 - (void)layoutLabelsForDateAndTime {

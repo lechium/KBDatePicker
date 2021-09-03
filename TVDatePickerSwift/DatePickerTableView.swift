@@ -10,8 +10,10 @@ import UIKit
 import Foundation
 
 protocol TableViewProtocol: UITableViewDelegate, UITableViewDataSource {
+    /*
     var dataSource: UITableViewDataSource { get set }
     var delegate: UITableViewDelegate { get set }
+ */
 }
 
 enum TableViewTag: String {

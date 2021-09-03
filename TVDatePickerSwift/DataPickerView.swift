@@ -23,7 +23,8 @@ enum DatePickerMode {
 }
 
 
-class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
+class DatePickerView: UIControl, TableViewProtocol {
+    
     static let stackViewHeight: CGFloat = 128.0
     static let numberOfCells: Int = 100000
     override var isEnabled: Bool {
@@ -107,7 +108,7 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
             adaptModeChange()
         }
     }
-    var topOffset: Int = 20
+    var topOffset: CGFloat = 20.0
     var hybridLayout: Bool = false // if set to hybrid, we allow manual layout for the width of our view
     
     var minimumDate: Date? {
@@ -224,7 +225,7 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
                 }
             } else {
                 let app = UIApplication.shared
-                let window = app.keyWindow
+                let window = app.keyWindow // seriously swift, no way to silence warnings with pragmas? thats effing stupid.
                 let root = window?.rootViewController
                 if root?.view == self.superview {
                     root?.setNeedsFocusUpdate()
@@ -260,8 +261,6 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
         return calendar.dateComponents(units, from: date)
     }
 
-   
-    
     func layoutViews() {
         viewSetupForMode()
         if tableViews.count > 0 {
@@ -304,15 +303,80 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
     }
     
     func layoutForTime() {
-        
+        if let ht = hourTable {
+            ht.removeFromSuperview()
+            hourTable = nil
+            minuteTable?.removeFromSuperview()
+            minuteTable = nil
+            amPMTable?.removeFromSuperview()
+            amPMTable = nil
+            tableViews.removeAll()
+        }
+        setupTimeData()
+        stackDistribution = .fillProportionally
+        hourTable = DatePickerTableView.init(tag: .Hours, delegate: self)
+        minuteTable = DatePickerTableView.init(tag: .Minutes, delegate: self)
+        amPMTable = DatePickerTableView.init(tag: .AMPM, delegate: self)
+        guard let ht = hourTable, let mt = minuteTable, let apt = amPMTable else {
+            print("ht mt and apt are nil, this is BAD, should prob throw and exception.")
+            return
+        }
+        ht.customWidth = 70
+        mt.customWidth = 80
+        apt.customWidth = 70
+        apt.contentInset = UIEdgeInsets.init(top: 0, left: 0, bottom: 40, right: 0)
+        tableViews = [ht, mt, apt]
     }
     
     func layoutForDate() {
         
+        if monthLabel != nil {
+            removeDateHeaders()
+            monthTable = nil
+            yearTable = nil
+            dayTable = nil
+            tableViews.removeAll()
+        }
+        populateDaysForCurrentMonth()
+        populateYearsForDateRange()
+        stackDistribution = .fillProportionally
+        
+        // labels
+        monthLabel = UILabel()
+        monthLabel?.translatesAutoresizingMaskIntoConstraints = false
+        monthLabel?.text = NSLocalizedString("Month", comment: "")
+        yearLabel = UILabel()
+        yearLabel?.translatesAutoresizingMaskIntoConstraints = false
+        yearLabel?.text = NSLocalizedString("Year", comment: "")
+        dayLabel = UILabel()
+        dayLabel?.translatesAutoresizingMaskIntoConstraints = false
+        dayLabel?.text = NSLocalizedString("Year", comment: "")
+        
+        // tables
+        monthTable = DatePickerTableView.init(tag: .Months, delegate: self)
+        yearTable = DatePickerTableView.init(tag: .Years, delegate: self)
+        dayTable = DatePickerTableView.init(tag: .Days, delegate: self)
+        
+        guard let mt = monthTable, let yt = yearTable, let dt = dayTable else {
+            print("mt yt and dt are nil, this is BAD, should prob throw and exception.")
+            return
+        }
+        mt.customWidth = 200
+        yt.customWidth = 80
+        yt.customWidth = 150
+        tableViews = [mt, dt, yt]
+        addSubview(monthLabel!)
+        addSubview(yearLabel!)
+        addSubview(dayLabel!)
     }
     
     func layoutLabelsForDate() {
-        
+        monthLabel?.topAnchor.constraint(equalTo: topAnchor, constant: topOffset).isActive = true
+        dayLabel?.topAnchor.constraint(equalTo: topAnchor, constant: topOffset).isActive = true
+        yearLabel?.topAnchor.constraint(equalTo: topAnchor, constant: topOffset).isActive = true
+        monthLabel?.centerXAnchor.constraint(equalTo: monthTable!.centerXAnchor).isActive = true
+        dayLabel?.centerXAnchor.constraint(equalTo: dayTable!.centerXAnchor).isActive = true
+        yearLabel?.centerXAnchor.constraint(equalTo: yearTable!.centerXAnchor).isActive = true
     }
     
     var currentYear: Int {
@@ -320,32 +384,132 @@ class DatePickerView: UIControl, UITableViewDelegate, UITableViewDataSource {
     }
     
     func layoutForDateAndTime() {
+        if hourTable != nil {
+            hourTable?.removeFromSuperview()
+            hourTable = nil
+            minuteTable?.removeFromSuperview()
+            minuteTable = nil
+            amPMTable?.removeFromSuperview()
+            amPMTable = nil
+            dateTable?.removeFromSuperview()
+            dateTable = nil
+            tableViews.removeAll()
+        }
+        stackDistribution = .fillProportionally
+        dateData = generateDates(for: currentYear)
+        setupTimeData()
         
+        dateTable = DatePickerTableView.init(tag: .Weekday, delegate: self)
+        hourTable = DatePickerTableView.init(tag: .Hours, delegate: self)
+        minuteTable = DatePickerTableView.init(tag: .Minutes, delegate: self)
+        amPMTable = DatePickerTableView.init(tag: .AMPM, delegate: self)
+        
+        dateTable?.customWidth = 200
+        hourTable?.customWidth = 80
+        minuteTable?.customWidth = 80
+        amPMTable?.customWidth = 70
+        amPMTable?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 40, right: 0)
+        tableViews = [dateTable!, hourTable!, minuteTable!, amPMTable!]
     }
     
     func layoutForCountdownTimer() {
+        if countDownHourTable != nil {
+            countDownHourTable?.removeFromSuperview()
+            countDownHourTable = nil
+            countDownMinuteTable?.removeFromSuperview()
+            countDownMinuteTable = nil
+            countDownSecondsTable?.removeFromSuperview()
+            countDownSecondsTable = nil
+            tableViews.removeAll()
+        }
         
+        stackDistribution = .fillProportionally
+        
+        // tables
+        countDownMinuteTable = DatePickerTableView.init(tag: .CDMinutes, delegate: self)
+        countDownHourTable = DatePickerTableView.init(tag: .CDHours, delegate: self)
+        countDownSecondsTable = DatePickerTableView.init(tag: .CDSeconds, delegate: self)
+        countDownMinuteTable?.customWidth = 200
+        countDownHourTable?.customWidth = 200
+        countDownSecondsTable?.customWidth = 200
+        countDownMinuteTable?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 40, right: 0)
+        countDownHourTable?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 40, right: 0)
+        countDownSecondsTable?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 40, right: 0)
+        
+        // labels
+        hourLabel = UILabel()
+        hourLabel?.translatesAutoresizingMaskIntoConstraints = false
+        hourLabel?.text = NSLocalizedString("Hours", comment: "")
+        minLabel = UILabel()
+        minLabel?.translatesAutoresizingMaskIntoConstraints = false
+        minLabel?.text = NSLocalizedString("Min", comment: "")
+        secLabel = UILabel()
+        secLabel?.translatesAutoresizingMaskIntoConstraints = false
+        secLabel?.text = NSLocalizedString("Sec", comment: "")
+        
+        addSubview(hourLabel!)
+        addSubview(minLabel!)
+        addSubview(secLabel!)
+        tableViews = [countDownHourTable!, countDownMinuteTable!, countDownSecondsTable!]
+        if countDownDuration == 0 {
+            let zero = IndexPath(row: 0, section: 0)
+            countDownMinuteTable?.selectedIndexPath = zero
+            countDownHourTable?.selectedIndexPath = zero
+            countDownSecondsTable?.selectedIndexPath = zero
+        }
     }
     
     func removeCountDownLabels() {
-        
+        hourLabel?.removeFromSuperview()
+        hourLabel = nil
+        minLabel?.removeFromSuperview()
+        minLabel = nil
+        secLabel?.removeFromSuperview()
+        secLabel = nil
     }
     
     func removeDateHeaders() {
-        
+        dayLabel?.removeFromSuperview()
+        dayLabel = nil
+        monthLabel?.removeFromSuperview()
+        monthLabel = nil
+        yearLabel?.removeFromSuperview()
+        yearLabel = nil
     }
     
     func layoutLabelsForCountdownTimer() {
+        removeDateHeaders()
         
+        hourLabel?.topAnchor.constraint(equalTo: topAnchor, constant: topOffset).isActive = true
+        minLabel?.topAnchor.constraint(equalTo: topAnchor, constant: topOffset).isActive = true
+        secLabel?.topAnchor.constraint(equalTo: topAnchor, constant: topOffset).isActive = true
+        
+        hourLabel?.centerXAnchor.constraint(equalTo: countDownHourTable!.centerXAnchor).isActive = true
+        minLabel?.centerXAnchor.constraint(equalTo: countDownMinuteTable!.centerXAnchor).isActive = true
+        secLabel?.centerXAnchor.constraint(equalTo: countDownSecondsTable!.centerXAnchor).isActive = true
+    }
+    
+    func layoutLabelsForTime() {
+        removeDateHeaders()
+        removeCountDownLabels()
     }
     
     func layoutLabelsForDateAndTime() {
-        
+        removeDateHeaders()
+        removeCountDownLabels()
     }
     
-    
     func setupLabelsForMode() {
-        
+        switch datePickerMode {
+        case .Time:
+            layoutLabelsForTime()
+        case .Date:
+            layoutLabelsForDate()
+        case .DateAndTime:
+            layoutLabelsForDateAndTime()
+        case .CountDownTimer:
+            layoutLabelsForCountdownTimer()
+        }
     }
     
     func viewSetupForMode() {
