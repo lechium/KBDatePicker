@@ -181,7 +181,7 @@ class DatePickerView: UIControl, TableViewProtocol {
     var hourData: [String] = []
     var minutesData: [String] = []
     var dayData: [String] = []
-    var dateData: [String]?
+    var dateData: [String] = []
     
     // UI stuff
     
@@ -607,7 +607,7 @@ class DatePickerView: UIControl, TableViewProtocol {
         } else if tableView == yearTable {
             return maxYear - minYear
         } else if tableView == dateTable {
-            return dateData!.count
+            return dateData.count
         } else if tableView == countDownHourTable {
             return 24
         } else if tableView == countDownMinuteTable {
@@ -989,7 +989,7 @@ class DatePickerView: UIControl, TableViewProtocol {
             
             case dateTable:
                 reuseId = "date"
-                let cellText = dateData![indexPath.row] // FIXME: force unwrap bad
+                let cellText = dateData[indexPath.row]
                 guard let newCell = pickerTableView.dequeueReusableCell(withIdentifier: reuseId) else {
                     cell = UITableViewCell.init(style: .default, reuseIdentifier: reuseId)
                     cell.textLabel?.text = cellText
