@@ -90,6 +90,7 @@
 		325D7B392597B97200CC6B10 /* KBDatePickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KBDatePickerView.h; sourceTree = "<group>"; };
 		325D7B3A2597B97200CC6B10 /* KBDatePickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KBDatePickerView.m; sourceTree = "<group>"; };
 		325D7B412597F35000CC6B10 /* postscript.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = postscript.sh; sourceTree = SOURCE_ROOT; };
+		32BBBCC726E33C4000CCA9E0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		32C7DE2525A5A01500FDB324 /* SwiftSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32C7DE2725A5A01500FDB324 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		32C7DE2925A5A01500FDB324 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -148,6 +149,7 @@
 		325D7B1325979B7B00CC6B10 = {
 			isa = PBXGroup;
 			children = (
+				32BBBCC726E33C4000CCA9E0 /* README.md */,
 				325D7B1E25979B7B00CC6B10 /* KBDatePicker */,
 				32C7DE2625A5A01500FDB324 /* SwiftSampleApp */,
 				3211B12226E131FD0062B1B4 /* TVDatePickerSwift */,

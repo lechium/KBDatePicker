@@ -4,12 +4,18 @@ UIDatePicker for tvOS! ported from https://github.com/jruhym/datePicker
 This has seen a long road of being a POC from the code listed above, to written completely in obj-c, to being re-written in Swift! There are now two versions that parallel in functionality one in Objective-C and one in Swift (the swift target is a framework you can embed too!) Will updated README with swift sample code and info later, however, the Swift sample app now uses the new Swift framework.
 
 all 4 date picker modes are supported:
-
+```Objective-C
 - KBDatePickerModeTime
 - KBDatePickerModeDate
 - KBDatePickerModeDateAndTime
 - KBDatePickerModeCountDownTimer
-
+```
+```Swift
+ DatePickerMode.Time
+ DatePickerMode.Date
+ DatePickerMode.DateAndTime
+ DatePickerMode.CountDownTimer
+```
 4 of the most important properties are supported
 
 - (NSDate *)date
