@@ -10,10 +10,7 @@ import UIKit
 import Foundation
 
 protocol TableViewProtocol: UITableViewDelegate, UITableViewDataSource {
-    /*
-    var dataSource: UITableViewDataSource { get set }
-    var delegate: UITableViewDelegate { get set }
- */
+ 
 }
 
 enum TableViewTag: Int {
@@ -35,7 +32,6 @@ class DatePickerTableView: UITableView {
     var selectedIndexPath: IndexPath? {
         didSet {
             let val = valueFor(indexPath: selectedIndexPath!)
-            print("\(val) for \(selectedIndexPath)")
             if val != nil {
                 selectedValue = val
             }

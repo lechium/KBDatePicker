@@ -185,43 +185,45 @@ public class DatePickerView: UIControl, TableViewProtocol {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // raw data - this should probably all be private
+    // raw data
     
-    var hourData: [String] = []
-    var minutesData: [String] = []
-    var dayData: [String] = []
-    var dateData: [String] = []
+    private var hourData: [String] = []
+    private var minutesData: [String] = []
+    private var dayData: [String] = []
+    private var dateData: [String] = []
     
     // UI stuff
     
-    var datePickerStackView: UIStackView = UIStackView() //just for now
+    private var datePickerStackView: UIStackView = UIStackView() //just for now
     
-    var monthTable: DatePickerTableView?
-    var dayTable: DatePickerTableView?
-    var yearTable: DatePickerTableView?
-    var hourTable: DatePickerTableView?
-    var minuteTable: DatePickerTableView?
-    var amPMTable: DatePickerTableView?
-    var dateTable: DatePickerTableView?
-    var countDownHourTable: DatePickerTableView?
-    var countDownMinuteTable: DatePickerTableView?
-    var countDownSecondsTable: DatePickerTableView?
+    private var monthTable: DatePickerTableView?
+    private var dayTable: DatePickerTableView?
+    private var yearTable: DatePickerTableView?
+    private var hourTable: DatePickerTableView?
+    private var minuteTable: DatePickerTableView?
+    private var amPMTable: DatePickerTableView?
+    private var dateTable: DatePickerTableView?
+    private var countDownHourTable: DatePickerTableView?
+    private var countDownMinuteTable: DatePickerTableView?
+    private var countDownSecondsTable: DatePickerTableView?
     
     // Labels
-    var monthLabel: UILabel?
-    var dayLabel: UILabel?
-    var yearLabel: UILabel?
-    var hourLabel: UILabel?
-    var minLabel: UILabel?
-    var secLabel: UILabel?
-    var datePickerLabel: UILabel = UILabel()
+    private var monthLabel: UILabel?
+    private var dayLabel: UILabel?
+    private var yearLabel: UILabel?
+    private var hourLabel: UILabel?
+    private var minLabel: UILabel?
+    private var secLabel: UILabel?
+    private var datePickerLabel: UILabel = UILabel()
     
-    var widthConstraint: NSLayoutConstraint?
-    var topConstraint: NSLayoutConstraint?
-    var stackDistribution: UIStackView.Distribution = .fillProportionally
+    private var widthConstraint: NSLayoutConstraint?
+    private var topConstraint: NSLayoutConstraint?
+    private var stackDistribution: UIStackView.Distribution = .fillProportionally
     
     // imp
     
+    
+    /// Makes it easy to navigate away from the date picker using the menu button
     @objc func menuGestureRecognized(_ recognizer: UIGestureRecognizer) {
         if recognizer.state == .ended {
             if let sv = superview as? DatePickerTableView {
@@ -260,15 +262,14 @@ public class DatePickerView: UIControl, TableViewProtocol {
                 }
             }
         }
-        
         return _days
-
     }
-    
+    /// For constructing dates using specified components conveniently using our current date
     func currentComponents(units: Set<Calendar.Component>) -> DateComponents {
         return calendar.dateComponents(units, from: date)
     }
 
+    /// This function lays out the view elements fresh every time
     func layoutViews() {
         viewSetupForMode()
         if tableViews.count == 0 {
@@ -326,7 +327,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
         minuteTable = DatePickerTableView.init(tag: .Minutes, delegate: self)
         amPMTable = DatePickerTableView.init(tag: .AMPM, delegate: self)
         guard let ht = hourTable, let mt = minuteTable, let apt = amPMTable else {
-            print("ht mt and apt are nil, this is BAD, should prob throw and exception.")
+            print("ht mt and apt are nil, this is BAD, should prob throw an exception.")
             return
         }
         ht.customWidth = 70
@@ -598,7 +599,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             if dayTable?.selectedValue != dayString {
                 scrollToValue(dayString, inTableViewType: .Days, animated: animated)
             }
-            let yearIndex = components.year! - 1 // FIXME: ditto
+            let yearIndex = components.year! - 1 // FIXME: no force unwraps if possible, just trying to get this working
             let yearString = "\(yearIndex)"
             if yearTable?.selectedValue != yearString {
                 scrollToValue(yearString, inTableViewType: .Years, animated: animated)
@@ -650,26 +651,28 @@ public class DatePickerView: UIControl, TableViewProtocol {
             dataSource = monthData()
             normalizedIndex = indexPath.row % dataSource.count
             components.month = normalizedIndex + 1
-            monthSelected = components.month!
-            let newDate = calendar.date(from: components)
-            currentDate = newDate!
+            if let month = components.month, let newDate = calendar.date(from: components) {
+                monthSelected = month
+                currentDate = newDate
+            }
             
         case dayTable:
             dataSource = dayData
             normalizedIndex = indexPath.row % dataSource.count
             components.day = normalizedIndex + 1
-            daySelected = components.day!
-            let newDate = calendar.date(from: components)
-            currentDate = newDate!
+            if let day = components.day, let newDate = calendar.date(from: components) {
+                daySelected = day
+                currentDate = newDate
+            }
             
         case minuteTable:
             dataSource = minutesData
             normalizedIndex = indexPath.row % dataSource.count
             components.minute = normalizedIndex
-            minuteSelected = components.minute!
-            let newDate = calendar.date(from: components)
-            currentDate = newDate!
-            
+            if let minute = components.minute, let newDate = calendar.date(from: components) {
+                minuteSelected = minute
+                currentDate = newDate
+            }
         case hourTable:
             dataSource = hourData
             normalizedIndex = indexPath.row % dataSource.count
@@ -683,23 +686,25 @@ public class DatePickerView: UIControl, TableViewProtocol {
                 }
             }
             components.hour = normalizedIndex + 1
-            hourSelected = components.hour!
-            let newDate = calendar.date(from: components)
-            currentDate = newDate!
-            
+            if let hour = components.hour, let newDate = calendar.date(from: components) {
+                hourSelected = hour
+                currentDate = newDate
+            }
         case yearTable:
-            var year = yearTable?.selectedIndexPath?.row
+            guard let yt = yearTable, var year = yearTable?.selectedIndexPath?.row else {
+                return
+            }
             var adjustment = 1
             if minYear > 1 {
                 adjustment = 0
-                year = Int((yearTable?.selectedValue)!) // FIXME: ditto
+                year = Int(yt.selectedValue!)! // FIXME: force unwrapping
             }
-            components.year = year! + adjustment
+            components.year = year + adjustment
             var newDate: Date?
             repeat {
                 newDate = calendar.date(from: components)
                 components.day! -= 1
-            } while newDate == nil || calendar.component(.month, from: newDate!) != components.month // FIXME: ditto
+            } while newDate == nil || calendar.component(.month, from: newDate!) != components.month // FIXME: force unwrapping
             currentDate = newDate!
             
         case amPMTable:
@@ -708,20 +713,27 @@ public class DatePickerView: UIControl, TableViewProtocol {
                 pmSelected = false
                 if hourSelected != 0 {
                     if previousState != pmSelected {
-                        components.hour! -= 12
-                        hourSelected = components.hour!
-                        if let date = calendar.date(from: components) {
-                            currentDate = date
+                        if var hour = components.hour {
+                            hour -= 12
+                            hourSelected = hour
+                            components.hour = hour
+                            if let date = calendar.date(from: components) {
+                                currentDate = date
+                            }
                         }
+                        
                     }
                 }
             } else if indexPath.row == 1 {
                 pmSelected = true
                 if hourSelected != 0 && previousState != pmSelected {
-                    components.hour! += 12
-                    hourSelected = components.hour!
-                    if let date = calendar.date(from: components) {
-                        currentDate = date
+                    if var hour = components.hour {
+                        hour += 12
+                        components.hour = hour
+                        hourSelected = hour
+                        if let date = calendar.date(from: components) {
+                            currentDate = date
+                        }
                     }
                 }
             }
