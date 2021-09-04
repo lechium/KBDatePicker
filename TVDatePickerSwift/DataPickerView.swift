@@ -712,7 +712,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             }
             
         case dateTable:
-            var dc = currentComponents(units: [.year, .day, .hour, .minute])
+            var dc = currentComponents(units: [.year, .day, .hour, .minute, .month])
             dc.day = indexPath.row+1
             currentDate = calendar.date(from: dc)!
         
