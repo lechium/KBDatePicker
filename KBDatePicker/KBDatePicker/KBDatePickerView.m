@@ -80,11 +80,12 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)setSelectedIndexPath:(NSIndexPath *)selectedIndexPath {
+    LOG_SELF;
     _selectedIndexPath = selectedIndexPath;
     id value = [self valueForIndexPath:selectedIndexPath];
     if (value){
         _selectedValue = value;
-        //DPLog(@"selected value set: %@ for index; %lu", _selectedValue, selectedIndexPath.row);
+        DPLog(@"selected value set: %@ for index; %lu", _selectedValue, selectedIndexPath.row);
     }
 }
 
@@ -681,7 +682,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)scrollToCurrentDateAnimated:(BOOL)animated {
-    
+    LOG_SELF;
     if (self.datePickerMode == KBDatePickerModeTime){
         [self loadTimeFromDateAnimated:animated];
     } else if (self.datePickerMode == KBDatePickerModeCountDownTimer) {
@@ -988,9 +989,9 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)populateDaysForCurrentMonth {
-    //NSDateComponents *comp = [self currentComponents:NSCalendarUnitMonth];
+    NSDateComponents *comp = [self currentComponents:NSCalendarUnitMonth];
     NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:self.date];
-    //DPLog(@"month : %lu days %lu for: %@", comp.month, days.length, self.date);
+    DPLog(@"month : %lu days %lu for: %@", comp.month, days.length, self.date);
     _currentMonthDayCount = days.length; //this is used to push a date back if they've gone too far.
     if (!self.dayData){ //only need to populate it once
         self.dayData = [self createNumberArray:31 zeroIndex:false leadingZero:false];
@@ -1052,6 +1053,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 
 
 - (void)scrollToValue:(id)value inTableViewType:(KBTableViewTag)type animated:(BOOL)animated {
+    LOG_SELF;
     NSInteger foundIndex = NSNotFound;
     NSIndexPath *ip = nil;
     NSInteger dayCount = self.dayData.count;
@@ -1088,9 +1090,10 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             if (foundIndex != NSNotFound){
                 shiftIndex = foundIndex - relationalIndex;
                 if (self.monthTable.selectedIndexPath && currentValue){
-                    //DPLog(@"current value: %@ relationalIndex: %lu found index: %lu, shift index: %.0f", currentValue, relationalIndex, foundIndex, shiftIndex);
+                    DPLog(@"current value: %@ relationalIndex: %lu found index: %lu, shift index: %.0f", currentValue, relationalIndex, foundIndex, shiftIndex);
                     ip = [NSIndexPath indexPathForRow:self.monthTable.selectedIndexPath.row+shiftIndex inSection:0];
                 } else {
+                    DPLog(@"we not in there");
                     ip = [NSIndexPath indexPathForRow:[self startIndexForHours]+foundIndex inSection:0];
                 }
                 [self.monthTable scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:animated];

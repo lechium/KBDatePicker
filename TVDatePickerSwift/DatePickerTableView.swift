@@ -35,6 +35,7 @@ class DatePickerTableView: UITableView {
     var selectedIndexPath: IndexPath? {
         didSet {
             let val = valueFor(indexPath: selectedIndexPath!)
+            print("\(val) for \(selectedIndexPath)")
             if val != nil {
                 selectedValue = val
             }

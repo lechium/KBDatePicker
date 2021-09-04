@@ -232,17 +232,19 @@ public class DatePickerView: UIControl, TableViewProtocol {
         var dc = calendar.dateComponents([.year, .day, .month], from: Date())
         let currentDay = dc.day
         let currentYear = dc.year
-        let days = calendar.range(of: .day, in: .year, for: DatePickerView.todayIn(year: year))
-        for i in 1...days!.endIndex { //i guess?
-            dc.day = i
-            if dc.day == currentDay && dc.year == currentYear {
-                _days.append("Today")
-            } else {
-                let newDate = calendar.date(from: dc)
-                let currentDay = DatePickerView.sharedMinimumDateFormatter.string(from: newDate!)
-                _days.append(currentDay)
+        if let days = calendar.range(of: .day, in: .year, for: DatePickerView.todayIn(year: year)) {
+            for i in 1...days.endIndex - days.startIndex { //i guess?
+                dc.day = i
+                if dc.day == currentDay && dc.year == currentYear {
+                    _days.append("Today")
+                } else {
+                    let newDate = calendar.date(from: dc)
+                    let currentDay = DatePickerView.sharedMinimumDateFormatter.string(from: newDate!)
+                    _days.append(currentDay)
+                }
             }
         }
+        
         return _days
 
     }
@@ -399,7 +401,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
         minuteTable?.customWidth = 80
         amPMTable?.customWidth = 70
         amPMTable?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 40, right: 0)
-        tableViews = [dateTable!, hourTable!, minuteTable!, amPMTable!]
+        tableViews = [dateTable!, hourTable!, minuteTable!, amPMTable!] //we know they exist so force unwrapping isn't a huge deal, still bad practice obviously.
     }
     
     func layoutForCountdownTimer() {
@@ -534,7 +536,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func scrollToCurrentDateAnimated(_ animated: Bool) {
-        
+        print("scrollToCurrentDateAnimated")
         switch datePickerMode {
         case .Time:
             loadTimeFromDateAnimated(animated)
@@ -569,7 +571,9 @@ public class DatePickerView: UIControl, TableViewProtocol {
             let components = currentComponents(units: [.year, .month, .day])
             let monthIndex = components.month! - 1 // FIXME: no force unwraps if possible, just trying to get this working
             let monthSymbol = self.monthData()[monthIndex]
+            print("comparing \(monthTable?.selectedValue) to \(monthSymbol)")
             if monthTable?.selectedValue != monthSymbol {
+                print("they're not equal!")
                 scrollToValue(monthSymbol, inTableViewType: .Months, animated: animated)
             }
             let dayIndex = components.day!
@@ -920,12 +924,14 @@ public class DatePickerView: UIControl, TableViewProtocol {
             }
             
         case .Months:
-            if let foundIndex = minutesData.firstIndex(of: value), let currentValue = monthTable?.selectedValue, let relationalIndex = monthData().firstIndex(of: currentValue) {
-                shiftIndex = foundIndex - relationalIndex
-                if let selectedIndexPath = monthTable?.selectedIndexPath {
-                    ip = IndexPath(row: selectedIndexPath.row+shiftIndex, section: 0)
+            if let foundIndex = monthData().firstIndex(of: value) {
+                if let currentValue = monthTable?.selectedValue, let relationalIndex = monthData().firstIndex(of: currentValue) {
+                    shiftIndex = foundIndex - relationalIndex
+                    if let selectedIndexPath = monthTable?.selectedIndexPath {
+                        ip = IndexPath(row: selectedIndexPath.row+shiftIndex, section: 0)
+                    }
                 } else {
-                    ip = IndexPath(row: startIndexForHours(), section: 0)
+                    ip = IndexPath(row: startIndexForHours()+foundIndex, section: 0)
                 }
                 monthTable?.scrollToRow(at: ip, at: .top, animated: animated)
                 monthTable?.selectRow(at: ip, animated: animated, scrollPosition: .top)
