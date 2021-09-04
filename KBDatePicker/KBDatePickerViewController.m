@@ -78,6 +78,7 @@
     
     [self.datePickerView setDatePickerMode:KBDatePickerModeCountDownTimer];
     [self.datePickerView setCountDownDuration:4205];
+    self.datePickerView.minuteInterval = 6;
 }
 
 - (void)toggleMode {

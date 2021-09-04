@@ -110,6 +110,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     NSInteger _countDownSecondSelected;
     NSInteger _countDownMinuteSelected;
     NSInteger _countDownHourSelected;
+    NSInteger _minuteInterval;
     
     BOOL _showDateLabel;
     NSCalendar *_calendar;
@@ -285,6 +286,18 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     return [NSLocale currentLocale];
 }
 
+- (NSInteger)minuteInterval {
+    return _minuteInterval;
+}
+
+- (void)setMinuteInterval:(NSInteger)minuteInterval {
+    if (60 % minuteInterval == 0) {
+        _minuteInterval = minuteInterval;
+        self.minutesData = [self createNumberArray:60 zeroIndex:true leadingZero:true interval:minuteInterval];
+        [self.minuteTable reloadData];
+    }
+}
+
 - (void)setCountDownDuration:(NSTimeInterval)countDownDuration {
     //LOG_SELF;
     _countDownDuration = countDownDuration;
@@ -364,6 +377,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (void)_initializeDefaults {
+    _minuteInterval = 1;
     _pmSelected = false;
     _showDateLabel = false;
     _topOffset = 20;
@@ -663,12 +677,19 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 }
 
 - (NSArray *)createNumberArray:(NSInteger)count zeroIndex:(BOOL)zeroIndex leadingZero:(BOOL)leadingZero {
+    return [self createNumberArray:count zeroIndex:zeroIndex leadingZero:leadingZero interval:1];
+}
+
+- (NSArray *)createNumberArray:(NSInteger)count zeroIndex:(BOOL)zeroIndex leadingZero:(BOOL)leadingZero interval:(NSInteger)interval {
     __block NSMutableArray *_newArray = [NSMutableArray new];
-    int startIndex = 1;
+    NSInteger startIndex = 1;
     if (zeroIndex){
         startIndex = 0;
     }
-    for (int i = startIndex; i < count+startIndex; i++){
+    if (interval != 1) {
+        startIndex = interval;
+    }
+    for (NSInteger i = startIndex; i < count+startIndex; i+=interval){
         if (leadingZero){
             [_newArray addObject:[self kb_stringWithFormat:"%02i", i]];
         } else {
@@ -690,7 +711,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
         _countDownMinuteSelected = (int)self.countDownDuration / 60 % 60;
         _countDownSecondSelected = (int)self.countDownDuration % 60;
         NSIndexPath *hourIP = [NSIndexPath indexPathForRow:_countDownHourSelected inSection:0];
-        NSIndexPath *minIP = [NSIndexPath indexPathForRow:_countDownMinuteSelected inSection:0];
+        NSIndexPath *minIP = [NSIndexPath indexPathForRow:_countDownMinuteSelected/_minuteInterval inSection:0];
         NSIndexPath *secIP = [NSIndexPath indexPathForRow:_countDownSecondSelected inSection:0];
         //DPLog(@"countDownHourTable sip: %@", self.countDownHourTable.selectedIndexPath);
         //DPLog(@"countDownMinuteTable sip: %@", self.countDownMinuteTable.selectedIndexPath);
@@ -756,7 +777,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     } else if (tableView == _countDownHourTable){
         return 24;
     } else if (tableView == _countDownMinuteTable){
-        return 60;
+        return 60/_minuteInterval;
     } else if (tableView == _countDownSecondsTable){
         return 60;
     }
@@ -1208,6 +1229,9 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cd"];
         }
         NSString *currentValue = [self kb_stringWithFormat:"%i",indexPath.row];
+        if (tableView == _countDownMinuteTable) {
+            currentValue = [self kb_stringWithFormat:"%i",indexPath.row*_minuteInterval];
+        }
         cell.textLabel.text = currentValue;
         cell.textLabel.textAlignment = NSTextAlignmentCenter;
     }
