@@ -30,8 +30,9 @@ class ViewController: UIViewController {
         toggleButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
         toggleButton.addTarget(self, action: #selector(toggleMode), for: .primaryActionTriggered)
         
-        //datePickerView.datePickerMode = .CountDownTimer//KBDatePickerModeCountDownTimer
+        datePickerView.datePickerMode = .CountDownTimer//KBDatePickerModeCountDownTimer
         //datePickerView.countDownDuration = 4100
+        datePickerView.minuteInterval = 6
     }
    
     override var preferredFocusEnvironments: [UIFocusEnvironment] {

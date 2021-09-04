@@ -99,7 +99,23 @@ public class DatePickerView: UIControl, TableViewProtocol {
             scrollToCurrentDateAnimated(true)
         }
     } // for CountDownTimer, ignored otherwise. default is 0.0. limit is 23:59 (86,399 seconds). value being set is div 60 (drops remaining seconds).
-    public var minuteInterval: Int?
+    
+    private var _mInterval: Int = 1
+    
+    public var minuteInterval: Int {
+        get {
+            return _mInterval
+        }
+        set(newValue) {
+            if 60 % newValue != 0 {
+                print("bail")
+            } else {
+                _mInterval = newValue
+                minutesData = createNumberArray(count: 60, zeroIndex: true, leadingZero: true, interval: newValue)
+                minuteTable?.reloadData()
+            }
+        }
+    }
     
     public var showDateLabel: Bool = true {
         didSet {
@@ -517,11 +533,15 @@ public class DatePickerView: UIControl, TableViewProtocol {
         }
     }
     
-    func createNumberArray(count: Int, zeroIndex: Bool, leadingZero:Bool) -> [String] {
+    func createNumberArray(count: Int, zeroIndex: Bool, leadingZero:Bool, interval: Int = 1) -> [String] {
         var newArray: [String] = []
         var startIndex = 1
         if zeroIndex { startIndex = 0 }
-        for i in startIndex...count+startIndex {
+        if interval != 1 {
+            startIndex = interval
+        }
+        
+        for i in stride(from: startIndex, to: count+startIndex, by: interval) {
             if leadingZero {
                 newArray.append("\(pad: i, toWidth: 2, using:"0")")
             } else {
@@ -545,7 +565,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             countDownMinuteSelected = Int(countDownDuration / 60) % 60
             countDownSecondSelected = Int(countDownDuration) % 60
             let hourIP = IndexPath(row: countDownHourSelected, section: 0)
-            let minIP = IndexPath(row: countDownMinuteSelected, section: 0)
+            let minIP = IndexPath(row: countDownMinuteSelected/minuteInterval, section: 0)
             let secIP = IndexPath(row: countDownSecondSelected, section: 0)
             if let hSip = countDownHourTable?.selectedIndexPath {
                 if hSip != hourIP {
@@ -605,7 +625,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
         } else if tableView == countDownHourTable {
             return 24
         } else if tableView == countDownMinuteTable {
-            return 60
+            return 60 / minuteInterval
         } else if tableView == countDownSecondsTable {
             return 60
         }
@@ -1043,7 +1063,10 @@ public class DatePickerView: UIControl, TableViewProtocol {
                 
             case countDownSecondsTable, countDownHourTable, countDownMinuteTable:
                 reuseId = "cd"
-                let cellText = "\(indexPath.row)"
+                var cellText = "\(indexPath.row)"
+                if pickerTableView == countDownMinuteTable && minuteInterval != 1 {
+                    cellText = minutesData[indexPath.row]
+                }
                 guard let newCell = pickerTableView.dequeueReusableCell(withIdentifier: reuseId) else {
                     cell = UITableViewCell.init(style: .default, reuseIdentifier: reuseId)
                     cell.textLabel?.textAlignment = .center
