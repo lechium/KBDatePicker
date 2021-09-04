@@ -26,17 +26,9 @@ public class DatePickerView: UIControl, TableViewProtocol {
     
     static let stackViewHeight: CGFloat = 128.0
     static let numberOfCells: Int = 100000
-    /*
-    public override var isEnabled: Bool {
-        
-        didSet {
-            self.isEnabled = false
-        }
-    }
-    */
      public init(withHybrdidLayout: Bool) {
         super.init(frame: .zero)
-        isEnabled = false //just in case, hopefully this doesnt create a loop or some dumb shit
+        isEnabled = false
         hybridLayout = withHybrdidLayout
         _initializeDefaults() //should be able to factor this out, just getting everything working first.
         layoutViews()
@@ -50,13 +42,13 @@ public class DatePickerView: UIControl, TableViewProtocol {
         addGestureRecognizer(menuTapGestureRecognizer)
     }
     
-    public var locale: Locale = Locale.current {
+    public var locale: Locale = Locale.current { // default is .current.
         didSet {
             _updateFormatters()
             adaptModeChange()
         }
-    } // default is .current. setting nil returns to default
-    public var calendar: Calendar = Calendar.current  { // default is .current. setting nil returns to default
+    }
+    public var calendar: Calendar = Calendar.current  { // default is .current
         didSet {
             calendar.timeZone = self.timeZone
             adaptModeChange()
@@ -94,7 +86,6 @@ public class DatePickerView: UIControl, TableViewProtocol {
         }
         get {
             return currentDate
-            
         }
     }
     
@@ -201,7 +192,6 @@ public class DatePickerView: UIControl, TableViewProtocol {
     var countDownSecondsTable: DatePickerTableView?
     
     // Labels
-    
     var monthLabel: UILabel?
     var dayLabel: UILabel?
     var yearLabel: UILabel?
