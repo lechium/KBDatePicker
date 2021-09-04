@@ -89,6 +89,7 @@ class ViewController: UIViewController {
     
     let datePickerView = DatePickerView(withHybrdidLayout: false)
     let toggleButton = UIButton(type: .system)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -105,7 +106,7 @@ class ViewController: UIViewController {
         toggleButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
         toggleButton.addTarget(self, action: #selector(toggleMode), for: .primaryActionTriggered)
         
-        datePickerView.datePickerMode = .CountDownTimer//KBDatePickerModeCountDownTimer
+        datePickerView.datePickerMode = .CountDownTimer
         //datePickerView.countDownDuration = 4100
         datePickerView.minuteInterval = 6
     }
