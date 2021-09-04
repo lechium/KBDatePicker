@@ -75,7 +75,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
     private var countDownHourSelected = 0
     private var countDownMinuteSelected = 0
     private var countDownSecondSelected = 0
-    private var selectedRowData: [String: Any] = [:]
+    
     private var minYear = 0
     private var maxYear = 0
     private var tableViews: [DatePickerTableView] = []
@@ -90,7 +90,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
     public var date: Date  {
         set(newDate) {
             currentDate = newDate
-            scrollToCurrentDateAnimated(false)
+            scrollToCurrentDateAnimated(true)
         }
         get {
             return currentDate
@@ -160,20 +160,19 @@ public class DatePickerView: UIControl, TableViewProtocol {
     static var longDateFormat: String = "E, MMM d, yyyy h:mm a"
     static var shortDateFormat: String = "E MMM d"
     
-    class var sharedDateFormatter: DateFormatter {
-        let df = DateFormatter()
-        df.timeZone = NSTimeZone.local
-        df.dateFormat = DateFormatter.dateFormat(fromTemplate: longDateFormat, options: 0, locale: df.locale)
-        return df
-    }
-    
-    class var sharedMinimumDateFormatter: DateFormatter {
+    static var sharedDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone.local
+        formatter.dateFormat = DateFormatter.dateFormat(fromTemplate: longDateFormat, options: 0, locale: formatter.locale)
+        return formatter
+       }()
+
+    static var sharedMinimumDateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.timeZone = NSTimeZone.local
         df.dateFormat = DateFormatter.dateFormat(fromTemplate: shortDateFormat, options: 0, locale: df.locale)
         return df
-    }
-    
+    }()
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -748,7 +747,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
                 return false
             }
         }
-        return true // FIXME: not sure this works properly yet
+        return true
     }
     
     func toggleMidnight() {
