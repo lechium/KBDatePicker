@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         return [toggleButton]
     }
     
-    @objc func toggleMode() -> Void {
+    @objc func toggleMode() {
         if datePickerView.datePickerMode == .CountDownTimer {
             self.datePickerView.datePickerMode = .Time
         } else {
@@ -47,7 +47,7 @@ class ViewController: UIViewController {
         }
     }
     
-    @objc func actionOccured(sender: DatePickerView) -> Void {
+    @objc func actionOccured(sender: DatePickerView) {
         print("date selected: \(sender.date)")
     }
 
