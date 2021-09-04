@@ -1,7 +1,7 @@
 # KBDatePicker
 UIDatePicker for tvOS! ported from https://github.com/jruhym/datePicker
 
-This is only loosely affiliated with the swift version it was ported from at this point. I tried to make it API compatible and achieve some kind of feature parity with the iOS counterpart.
+This has seen a long road of being a POC from the code listed above, to written completely in obj-c, to being re-written in Swift! There are now two versions that parallel in functionality one in Objective-C and one in Swift (the swift target is a framework you can embed too!) Will updated README with swift sample code and info later, however, the Swift sample app now uses the new Swift framework.
 
 all 4 date picker modes are supported:
 
@@ -98,7 +98,7 @@ Sometimes you may have trouble directing the focus engine on and off of KBDatePi
 
 ## Feature Requests
 
-Feel free to request features if you think i've overlooked anything! I am considering re-writing this in Swift, but not SwiftUI. Will probably take a while, but it'll be a good exercise.
+Feel free to request features if you think i've overlooked anything! 
 
 ## In Action
 
