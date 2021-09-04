@@ -536,7 +536,6 @@ public class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func scrollToCurrentDateAnimated(_ animated: Bool) {
-        print("scrollToCurrentDateAnimated")
         switch datePickerMode {
         case .Time:
             loadTimeFromDateAnimated(animated)
@@ -571,9 +570,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             let components = currentComponents(units: [.year, .month, .day])
             let monthIndex = components.month! - 1 // FIXME: no force unwraps if possible, just trying to get this working
             let monthSymbol = self.monthData()[monthIndex]
-            print("comparing \(monthTable?.selectedValue) to \(monthSymbol)")
             if monthTable?.selectedValue != monthSymbol {
-                print("they're not equal!")
                 scrollToValue(monthSymbol, inTableViewType: .Months, animated: animated)
             }
             let dayIndex = components.day!
@@ -640,10 +637,8 @@ public class DatePickerView: UIControl, TableViewProtocol {
         case dayTable:
             dataSource = dayData
             normalizedIndex = indexPath.row % dataSource.count
-            print("normalizedIndex: \(normalizedIndex)")
             components.day = normalizedIndex + 1
             daySelected = components.day!
-            //print("normalizedIndex: \(normalizedIndex) s: \(dataSource[normalizedIndex])")
             let newDate = calendar.date(from: components)
             currentDate = newDate!
             
@@ -910,7 +905,6 @@ public class DatePickerView: UIControl, TableViewProtocol {
         case .Hours:
             if let foundIndex = hourData.firstIndex(of: value) {
                 ip = IndexPath(row: startIndexForHours()+foundIndex, section: 0)
-                print("found index: \(ip.row)")
                 hourTable?.scrollToRow(at: ip, at: .top, animated: animated)
                 hourTable?.selectRow(at: ip, animated: animated, scrollPosition: .top)
                 delayedUpdateFocus()
@@ -919,7 +913,6 @@ public class DatePickerView: UIControl, TableViewProtocol {
         case .Minutes:
             if let foundIndex = minutesData.firstIndex(of: value) {
                 ip = IndexPath(row: startIndexForMinutes()+foundIndex, section: 0)
-                print("found index: \(ip.row)")
                 minuteTable?.scrollToRow(at: ip, at: .top, animated: animated)
                 minuteTable?.selectRow(at: ip, animated: animated, scrollPosition: .top)
                 delayedUpdateFocus()
