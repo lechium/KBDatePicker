@@ -640,7 +640,6 @@ public class DatePickerView: UIControl, TableViewProtocol {
     }
     
     func updateDetailsAtIndexPath(_ indexPath: IndexPath, inTable: DatePickerTableView) {
-        // FIXME: so many force unwraps!!
         var components = currentComponents(units: [.month, .day, .year, .hour, .minute])
         var dataSource: [String] = []
         var normalizedIndex = NSNotFound
@@ -757,7 +756,9 @@ public class DatePickerView: UIControl, TableViewProtocol {
             adjustedIndex = index % monthData().count
         }
         comp.month = adjustedIndex
-        date = calendar.date(from: comp)! // TODO: make sure this is always safe
+        if let safeDate = calendar.date(from: comp) {
+            date = safeDate
+        }
     }
     
     public func tableView(_ tableView: UITableView, canFocusRowAt indexPath: IndexPath) -> Bool {
@@ -1134,7 +1135,5 @@ public class DatePickerView: UIControl, TableViewProtocol {
         case .CountDownTimer:
             return 550
         }
-        //return 720
     }
-
 }
