@@ -82,7 +82,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
     public var date: Date  {
         set(newDate) {
             currentDate = newDate
-            scrollToCurrentDateAnimated(true)
+            setDate(newDate, animated: true)
         }
         get {
             return currentDate
@@ -639,15 +639,17 @@ public class DatePickerView: UIControl, TableViewProtocol {
             
         case dayTable:
             dataSource = dayData
-            normalizedIndex = indexPath.row & dataSource.count
+            normalizedIndex = indexPath.row % dataSource.count
+            print("normalizedIndex: \(normalizedIndex)")
             components.day = normalizedIndex + 1
             daySelected = components.day!
+            //print("normalizedIndex: \(normalizedIndex) s: \(dataSource[normalizedIndex])")
             let newDate = calendar.date(from: components)
             currentDate = newDate!
             
         case minuteTable:
             dataSource = minutesData
-            normalizedIndex = indexPath.row & dataSource.count
+            normalizedIndex = indexPath.row % dataSource.count
             components.minute = normalizedIndex
             minuteSelected = components.minute!
             let newDate = calendar.date(from: components)
@@ -655,7 +657,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             
         case hourTable:
             dataSource = hourData
-            normalizedIndex = indexPath.row & dataSource.count
+            normalizedIndex = indexPath.row % dataSource.count
             if pmSelected {
                 if normalizedIndex != 11 {
                     normalizedIndex += 12
@@ -1073,7 +1075,7 @@ public class DatePickerView: UIControl, TableViewProtocol {
             if datePickerMode == .CountDownTimer {
                 details = "countdown duration: \(countDownDuration) seconds"
             } else {
-                details = DatePickerView.sharedDateFormatter.string(from: date)
+                details = DatePickerView.sharedDateFormatter.string(from: currentDate)
             }
             datePickerLabel.text = details
         } else {
