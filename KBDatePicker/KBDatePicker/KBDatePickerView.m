@@ -211,7 +211,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
 - (NSArray *)generateDatesForYear:(NSInteger)year {
     
     NSMutableArray *_days = [NSMutableArray new];
-    NSDateComponents *dc = [[self calendar] components: NSCalendarUnitYear | NSCalendarUnitDay  fromDate:[NSDate date]];
+    NSDateComponents *dc = [[self calendar] components: NSCalendarUnitYear | NSCalendarUnitDay | NSCalendarUnitMonth  fromDate:[NSDate date]];
     NSInteger currentDay = dc.day;
     NSInteger currentYear = dc.year;
     NSRange days = [[self calendar] rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitYear forDate:[KBDatePickerView todayInYear:year]];
@@ -730,7 +730,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
     } else {
         [self loadTimeFromDateAnimated:animated];
         //if (self.datePickerMode == KBDatePickerModeDateAndTime){
-        NSDateComponents *components = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitDay];
+        NSDateComponents *components = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitDay | NSCalendarUnitMonth];
         NSInteger currentDay = components.day-1;
         //NSString *valueForDate = self.dateData[currentDay];
         [self.dateTable scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:currentDay inSection:0 ] atScrollPosition:UITableViewScrollPositionTop animated:animated];
@@ -861,7 +861,7 @@ DEFINE_ENUM(KBDatePickerMode, PICKER_MODE)
             }
         }
     } else if (tableView == _dateTable){
-        NSDateComponents *dc = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute];
+        NSDateComponents *dc = [self currentComponents:NSCalendarUnitYear | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitMonth];
         dc.day = indexPath.row+1;
         _currentDate = [[self calendar] dateFromComponents:dc];
     } else if (tableView == _countDownSecondsTable){
