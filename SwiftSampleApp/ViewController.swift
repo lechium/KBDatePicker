@@ -12,7 +12,6 @@ import TVDatePickerSwift
 class ViewController: UIViewController {
     
     let datePickerView = DatePickerView(withHybrdidLayout: false)
-    //let datePickerView = KBDatePickerView()
     let toggleButton = UIButton(type: .system)
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +31,8 @@ class ViewController: UIViewController {
         
         datePickerView.datePickerMode = .CountDownTimer//KBDatePickerModeCountDownTimer
         //datePickerView.countDownDuration = 4100
-        datePickerView.minuteInterval = 6
+        datePickerView.minuteInterval = 1
+        datePickerView.showDateLabel = true
     }
    
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
@@ -43,14 +43,11 @@ class ViewController: UIViewController {
         if datePickerView.datePickerMode == .CountDownTimer {
             self.datePickerView.datePickerMode = .Time
         } else {
-            print(self.datePickerView.datePickerMode.rawValue)
             self.datePickerView.datePickerMode = DatePickerMode(rawValue: self.datePickerView.datePickerMode.rawValue+1)!
-            //self.datePickerView.datePickerMode = DatePickerMode(rawValue:)//datePickerView.datePickerMode. //KBDatePickerMode(rawValue: self.datePickerView.datePickerMode.rawValue+1)
         }
     }
     
     @objc func actionOccured(sender: DatePickerView) -> Void {
-        //print
         print("date selected: \(sender.date)")
     }
 
